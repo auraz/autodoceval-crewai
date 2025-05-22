@@ -11,7 +11,8 @@ The workflow assumes:
 Create docs/ and config.yaml (see comments below) if they don’t exist.
 """
 from pathlib import Path
-import yaml
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))  # allow “import modules…”
 
 # ---------------------------------------------------------------------
 # Configuration -------------------------------------------------------
@@ -24,12 +25,11 @@ import yaml
 #     - docs/medium_doc.md
 # ---------------------------------------------------------------------
 configfile: "config.yaml"
-cfg = yaml.safe_load(open(configfile))
 
-MEMORY_ID      = cfg.get("memory_id")          # may be None
-MAX_ITERATIONS = cfg.get("max_iterations", 3)
-TARGET_SCORE   = cfg.get("target_score", 0.7)
-DOCS           = [Path(p) for p in cfg["documents"]]
+MEMORY_ID      = config.get("memory_id")          # may be None
+MAX_ITERATIONS = config.get("max_iterations", 3)
+TARGET_SCORE   = config.get("target_score", 0.7)
+DOCS           = [Path(p) for p in config["documents"]]
 
 # helper to strip extension once
 def stem(path): return Path(path).stem
@@ -54,22 +54,6 @@ rule evaluate:
         score, fb = evaluate_document(txt, memory_id=params.memory)
         Path(output.score).write_text(format_percentage(score))
         Path(output.feedback).write_text(fb)
-
-rule improve:
-    input:
-        doc      = lambda wc: next(p for p in DOCS if stem(p) == wc.name),
-        feedback = "output/{name}/{name}_feedback.txt",
-        score    = "output/{name}/{name}_score.txt"
-    output:
-        improved = "output/{name}/{name}_improved_iter{iter}.md"
-    params:
-        memory = MEMORY_ID
-    run:
-        from modules.core import improve_document
-        content  = Path(input.doc).read_text()
-        feedback = Path(input.feedback).read_text()
-        new = improve_document(content, feedback, memory_id=params.memory)
-        Path(output.improved).write_text(new)
 
 rule auto_improve:
     input:
