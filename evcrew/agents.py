@@ -3,7 +3,7 @@
 import os
 from typing import Dict, Optional, Tuple
 
-from crewai import Agent                                                               from crewai.memory import LongTermMemory, ShortTermMemory, EntityMemory       
+from crewai import Agent
 from openai import OpenAI
 from pydantic import BaseModel
 
