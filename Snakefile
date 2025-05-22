@@ -17,10 +17,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))  # allow “import modu
 
 configfile: "snakefile-config.yaml"
 
+INPUT_DIR  = Path("docs") / "input"
+OUTPUT_DIR = Path("docs") / "output"
+
 MEMORY_ID      = config.get("memory_id")          # may be None
 MAX_ITERATIONS = config.get("max_iterations", 3)
 TARGET_SCORE   = config.get("target_score", 0.7)
-DOCS           = [Path(p) for p in config["documents"]]
+DOCS = [INPUT_DIR / Path(p).name for p in config["documents"]]
 
 # helper to strip extension once
 def stem(path): return Path(path).stem
@@ -28,17 +31,19 @@ def stem(path): return Path(path).stem
 
 rule all:
     input:
-        expand("output/{name}/{name}_final.md", name=[stem(p) for p in DOCS])
+        expand(str(OUTPUT_DIR) + "/{name}/{name}_final.md",
+               name=[stem(p) for p in DOCS])
 
 rule evaluate:
     input:
         doc=lambda wc: next(p for p in DOCS if stem(p) == wc.name)
     output:
-        score   = "output/{name}/{name}_score.txt",
-        feedback= "output/{name}/{name}_feedback.txt"
+        score    = str(OUTPUT_DIR) + "/{name}/{name}_score.txt",
+        feedback = str(OUTPUT_DIR) + "/{name}/{name}_feedback.txt"
     params:
         memory  = MEMORY_ID
     run:
+        Path(output.score).parent.mkdir(parents=True, exist_ok=True)
         from modules.core import evaluate_document, format_percentage
         txt = Path(input.doc).read_text()
         score, fb = evaluate_document(txt, memory_id=params.memory)
@@ -49,12 +54,13 @@ rule auto_improve:
     input:
         doc = lambda wc: next(p for p in DOCS if stem(p) == wc.name)
     output:
-        final = "output/{name}/{name}_final.md"
+        final = str(OUTPUT_DIR) + "/{name}/{name}_final.md"
     params:
         memory        = MEMORY_ID,
         max_iter      = MAX_ITERATIONS,
         target_score  = TARGET_SCORE
     run:
+        Path(output.final).parent.mkdir(parents=True, exist_ok=True)
         from modules.core import auto_improve_document
         final_path = auto_improve_document(
             doc_path     = input.doc,
