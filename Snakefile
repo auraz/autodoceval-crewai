@@ -1,19 +1,7 @@
-"""
-Snakemake workflow that wires the existing high-level helpers in
-modules.core (evaluate_document, improve_document, auto_improve_document).
-
-The workflow assumes:
-  • every Markdown document you want to process lives under docs/
-  • results are written under output/  (same dir the library already uses)
-  • optional settings live in a small config.yaml (memory id, target score,
-    max iterations, etc.)
-
-
-"""
+"""Snakemake workflow that wires the existing high-level helpers in modules.core"""
 from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # allow “import modules…”
-
 
 configfile: "snakefile-config.yaml"
 
