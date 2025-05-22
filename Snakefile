@@ -24,10 +24,8 @@ rule all:
         expand(str(OUTPUT_DIR) + "/{name}/{name}_final.md",
                name=[stem(p) for p in DOCS])
 
-# evaluate all documents (no wildcards) – allows “snakemake evaluate”
 rule evaluate:
     input:
-        # scores and feedbacks of every doc
         expand(str(OUTPUT_DIR) + "/{name}/{name}_score.txt",
                name=[stem(p) for p in DOCS]) +
         expand(str(OUTPUT_DIR) + "/{name}/{name}_feedback.txt",
