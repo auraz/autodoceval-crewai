@@ -11,7 +11,9 @@ OUTPUT_DIR = Path("docs") / "output"
 MEMORY_ID      = config.get("memory_id")          # may be None
 MAX_ITERATIONS = config.get("max_iterations", 3)
 TARGET_SCORE   = config.get("target_score", 0.7)
-DOCS = [INPUT_DIR / Path(p).name for p in config["documents"]]
+
+# iterate through all *.md files in docs/input/
+DOCS = sorted(INPUT_DIR.glob("*.md"))
 
 # helper to strip extension once
 def stem(path): return Path(path).stem
