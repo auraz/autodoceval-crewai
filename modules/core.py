@@ -12,7 +12,7 @@ from .agents import DocumentEvaluator, DocumentImprover
 from .file_utils import read_file, write_file
 
 
-_OUTPUT_BASE_DIR = Path("output")
+_OUTPUT_BASE_DIR = Path("docs") / "output"
 
 
 def _save_run_data(
@@ -93,15 +93,17 @@ def format_percentage(score: float) -> str:
 
 
 def generate_improved_path(doc_path: str, iteration: int) -> str:
-    """Generates a numbered iteration path for improved document."""
+    """Return docs/output/<name>/<name>_iterN.md"""
     base_name = os.path.basename(doc_path)
-    filename, ext = os.path.splitext(base_name) if '.' in base_name else (base_name, '.md')
-    
-    # Remove any existing iteration numbers
-    if "_iter" in filename:
+    filename, ext = os.path.splitext(base_name) if "." in base_name else (base_name, ".md")
+
+    if "_iter" in filename:              # drop any existing “…_iterX”
         filename = filename.split("_iter")[0]
-        
-    return os.path.join(os.getcwd(), f"{filename}_iter{iteration}{ext}")
+
+    out_dir = _OUTPUT_BASE_DIR / filename  # docs/output/<name>/
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    return str(out_dir / f"{filename}_iter{iteration}{ext}")
 
 
 def auto_improve_document(
@@ -122,6 +124,8 @@ def auto_improve_document(
     """
     if not os.path.exists(doc_path):
         raise FileNotFoundError(f"File not found: {doc_path}")
+
+    final_path: str = doc_path        # will track the latest version
         
     print(f"🔄 Starting auto-improvement loop for {doc_path}")
     print(f"Target score: {format_percentage(target_score)}")
@@ -151,7 +155,7 @@ def auto_improve_document(
     # Skip improvement if already at target
     if original_score >= target_score:
         print(f"✅ Original document already meets target score of {format_percentage(target_score)}!")
-        return
+        return final_path
         
     while iteration < max_iterations:
         iteration += 1
@@ -168,6 +172,7 @@ def auto_improve_document(
         # Save improved document
         improved_path = generate_improved_path(doc_path, iteration)
         write_file(improved_path, improved_doc)
+        final_path = improved_path
         
         # Evaluate improved document
         score, feedback = evaluate_document(improved_doc, memory_id=evaluator_memory_id)
@@ -194,3 +199,4 @@ def auto_improve_document(
         print(f"⚠️ Maximum iterations ({max_iterations}) reached without achieving target score")
     
     print("\n✅ Auto-improvement process completed!")
+    return final_path
