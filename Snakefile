@@ -102,3 +102,10 @@ rule call:
 
 if not workflow.is_local:
     include: "cluster_profile.smk"
+configfile: "config.yaml"
+
+SAMPLES  = config["samples"]          # list of sample IDs
+WORKDIR  = config.get("workdir", "results")
+def outdir(sample):      return f"{WORKDIR}/{sample}"
+
+localrules: all

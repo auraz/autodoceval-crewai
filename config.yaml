@@ -22,3 +22,9 @@ threads:
 params:
   align_extra: ""
   call_extra: ""
+samples:  [sample1, sample2, sample3]   # <-- your sample IDs
+reference: "ref/genome.fa"              # <-- path to reference
+mem_mb:
+  default: 4000
+  process: 8000
+workdir: "results"                      # (omit to accept default)
