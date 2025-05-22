@@ -1,0 +1,24 @@
+# Centralised configuration for Snakefile
+
+samples:
+  - sample1
+  - sample2
+  - sample3
+
+workdir: "work"
+
+reference: "ref/genome.fa"
+
+mem_mb:
+  default: 4000
+  align: 8000
+  call: 6000
+
+threads:
+  default: 1
+  align: 4
+  call: 2
+
+params:
+  align_extra: ""
+  call_extra: ""

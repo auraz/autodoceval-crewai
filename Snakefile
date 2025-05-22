@@ -59,4 +59,46 @@ rule init:
     output:
         directory(OUTPUT_DIR)
     shell:
-        "mkdir -p {output}"
+        "mkdir -p {output}"configfile: "config.yaml"
+
+WORKDIR = config["workdir"]
+def r(path): return f"{WORKDIR}/{path}"
+
+localrules: all
+
+def run_tool(infile, outfile, extra=""):
+    shell("tool -i {infile} -o {outfile} {extra}")
+
+rule all:
+    input: expand(r("results/{sample}/final.out"), sample=config["samples"])
+
+rule align:
+    input:
+        r("data/{sample}.fastq"),
+        config["reference"]
+    output:
+        r("results/{sample}/aligned.bam")
+    params:
+        extra=config["params"]["align_extra"]
+    resources:
+        threads=config["threads"]["align"],
+        mem_mb=config["mem_mb"]["align"]
+    run:
+        run_tool(input[0], output[0], extra=params.extra)
+
+rule call:
+    input:
+        r("results/{sample}/aligned.bam"),
+        config["reference"]
+    output:
+        r("results/{sample}/final.out")
+    params:
+        extra=config["params"]["call_extra"]
+    resources:
+        threads=config["threads"]["call"],
+        mem_mb=config["mem_mb"]["call"]
+    run:
+        run_tool(input[0], output[0], extra=params.extra)
+
+if not workflow.is_local:
+    include: "cluster_profile.smk"
