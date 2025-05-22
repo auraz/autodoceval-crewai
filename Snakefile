@@ -8,22 +8,13 @@ The workflow assumes:
   • optional settings live in a small config.yaml (memory id, target score,
     max iterations, etc.)
 
-Create docs/ and config.yaml (see comments below) if they don’t exist.
+
 """
 from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # allow “import modules…”
 
-# ---------------------------------------------------------------------
-# Configuration -------------------------------------------------------
-# config.yaml (put it next to this Snakefile) example:
-#   memory_id:       "api_docs_memory"
-#   max_iterations:  3
-#   target_score:    0.85
-#   documents:
-#     - docs/poor_doc.md
-#     - docs/medium_doc.md
-# ---------------------------------------------------------------------
+
 configfile: "snakefile-config.yaml"
 
 MEMORY_ID      = config.get("memory_id")          # may be None
@@ -34,8 +25,7 @@ DOCS           = [Path(p) for p in config["documents"]]
 # helper to strip extension once
 def stem(path): return Path(path).stem
 
-# ---------------------------------------------------------------------
-# Rule graph ----------------------------------------------------------
+
 rule all:
     input:
         expand("output/{name}/{name}_final.md", name=[stem(p) for p in DOCS])
