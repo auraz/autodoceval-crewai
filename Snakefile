@@ -45,7 +45,7 @@ rule evaluate_doc:
         Path(output.score).parent.mkdir(parents=True, exist_ok=True)
 
         txt = Path(input.doc).read_text()
-        score, fb = evaluate_document(txt, memory_id=params.memory)
+        score, fb = core.evaluate_document(txt, memory_id=params.memory)
 
         Path(output.score).write_text(core.format_percentage(score))
         Path(output.feedback).write_text(fb)

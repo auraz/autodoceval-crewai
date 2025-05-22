@@ -1,5 +1,5 @@
 class EvaluatorAgent:
-    def __init__(self, memory_id=None):
+    def __init__(self, memory_id: str):
         self.memory_id = memory_id
 
     def evaluate(self, text):
@@ -12,7 +12,7 @@ class EvaluatorAgent:
         pass
 
 class ImproverAgent:
-    def __init__(self, memory_id=None):
+    def __init__(self, memory_id: str):
         self.memory_id = memory_id
 
     def improve(self, text):
@@ -22,13 +22,13 @@ class ImproverAgent:
     def save_memory(self):
         pass
 
-def get_evaluator_agent(memory_id=None):
+def get_evaluator_agent(memory_id: str):
     return EvaluatorAgent(memory_id=memory_id)
 
-def get_improver_agent(memory_id=None):
+def get_improver_agent(memory_id: str):
     return ImproverAgent(memory_id=memory_id)
 
-def get_auto_improver_agents(memory_id=None):
+def get_auto_improver_agents(memory_id: str):
     return {
         "evaluator": EvaluatorAgent(memory_id=memory_id),
         "improver": ImproverAgent(memory_id=memory_id),

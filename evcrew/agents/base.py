@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Tuple
 from pydantic import BaseModel
 
 try:
@@ -13,10 +13,11 @@ class AgentResult(BaseModel):
     feedback: str = ""
 
 
-def create_memory_instance(memory_id: Optional[str]) -> Optional["CrewMemory"]:
-    if memory_id and CrewMemory:
-        return CrewMemory(memory_id=memory_id)
-    return None
+def create_memory_instance(memory_id: str) -> "CrewMemory":
+    """Return a CrewMemory instance. Memory is *required*."""
+    if CrewMemory is None:  # backend not installed
+        raise ImportError("CrewAI memory subsystem not available, but memory is required.")
+    return CrewMemory(memory_id=memory_id)
 
 
 def parse_agent_response(response: str) -> Tuple[float, str]:
