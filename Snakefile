@@ -7,6 +7,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))  # allow “import modu
 if 'modules' in sys.modules and not getattr(sys.modules['modules'], '__path__', None):
     # a non-package named "modules" was imported earlier – remove it
     del sys.modules['modules']
+
+import importlib
+importlib.import_module("modules")
 # -----------------------------------------------------------------------
 
 configfile: "snakefile-config.yaml"
