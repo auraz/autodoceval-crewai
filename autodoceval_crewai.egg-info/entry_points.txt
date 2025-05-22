@@ -1,0 +1,2 @@
+[console_scripts]
+autodoceval-crewai = autodoceval_crewai.cli:main
