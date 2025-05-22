@@ -15,7 +15,8 @@ def get_output_path(filename, suffix):
 
 rule all:
     input:
-        get_output_path(config["input_file"], "improved")
+        expand(outdir("{sample}") + "/final.out",
+               sample=SAMPLES)
 
 rule grade:
     input:
@@ -72,33 +73,24 @@ def run_tool(infile, outfile, extra=""):
 rule all:
     input: expand(r("results/{sample}/final.out"), sample=config["samples"])
 
-rule align:
+rule process_sample:
     input:
-        r("data/{sample}.fastq"),
-        config["reference"]
+        fq   = "data/{sample}.fastq",
+        ref  = config["reference"]          # path stored in YAML
     output:
-        r("results/{sample}/aligned.bam")
-    params:
-        extra=config["params"]["align_extra"]
+        bam  = temp(outdir("{sample}") + "/aligned.bam"),
+        vcf  =       outdir("{sample}") + "/calls.vcf",
+        rpt  =       outdir("{sample}") + "/qc.txt"
     resources:
-        threads=config["threads"]["align"],
-        mem_mb=config["mem_mb"]["align"]
-    run:
-        run_tool(input[0], output[0], extra=params.extra)
-
-rule call:
-    input:
-        r("results/{sample}/aligned.bam"),
-        config["reference"]
-    output:
-        r("results/{sample}/final.out")
-    params:
-        extra=config["params"]["call_extra"]
-    resources:
-        threads=config["threads"]["call"],
-        mem_mb=config["mem_mb"]["call"]
-    run:
-        run_tool(input[0], output[0], extra=params.extra)
+        threads = 4,
+        mem_mb  = config["mem_mb"]["process"]
+    shell:
+        """
+        aligner -t {resources.threads} -r {input.ref} \
+                -i {input.fq} -o {output.bam}
+        caller  -i {output.bam} -o {output.vcf}
+        qc_tool -i {output.bam} > {output.rpt}
+        """
 
 if not workflow.is_local:
     include: "cluster_profile.smk"
