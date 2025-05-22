@@ -1,77 +1,16 @@
+configfile: "config.yaml"
+
 import os
-from pathlib import Path
+SAMPLES  = config["samples"]
+WORKDIR  = config.get("workdir", "results")   # change “results” if you kept “work”
+def outdir(sample): return f"{WORKDIR}/{sample}"
 
-config.setdefault("max_iterations", 3)
-config.setdefault("target_score", 0.7)
-config.setdefault("input_file", "example.md")
-
-OUTPUT_DIR = "output"
-
-def get_output_path(filename, suffix):
-    base = os.path.basename(filename)
-    name, ext = os.path.splitext(base)
-    return os.path.join(OUTPUT_DIR, f"{name}_{suffix}{ext}")
-
+localrules: all
 
 rule all:
     input:
         expand(outdir("{sample}") + "/final.out",
                sample=SAMPLES)
-
-rule grade:
-    input:
-        config["infile"]
-    output:
-        json="f{input}_scores.json"
-    shell:
-        "python -m autodoceval_crewai.cli grade {input} --output {output.json}"
-
-
-rule improve:
-    input:
-        doc="{file}",
-        feedback="{file}_scores.json"
-    output:
-        "{file}_improved.md"
-    shell:
-        "python -m autodoceval_crewai.cli improve {input.doc} --feedback {input.feedback} --output {output}"
-
-rule auto_improve:
-    input:
-        "{file}"
-    output:
-        directory("{file}_iterations")
-    params:
-        iterations=config["max_iterations"],
-        target=config["target_score"]
-    shell:
-        """
-        mkdir -p {output}
-        python -m autodoceval_crewai.cli auto-improve {input} --iterations {params.iterations} --target {params.target}
-        """
-
-# Clean outputs
-rule clean:
-    shell:
-        "rm -rf {OUTPUT_DIR}/*_scores.json {OUTPUT_DIR}/*_improved.md {OUTPUT_DIR}/*_iterations"
-
-# Initialize project structure
-rule init:
-    output:
-        directory(OUTPUT_DIR)
-    shell:
-        "mkdir -p {output}"configfile: "config.yaml"
-
-WORKDIR = config["workdir"]
-def r(path): return f"{WORKDIR}/{path}"
-
-localrules: all
-
-def run_tool(infile, outfile, extra=""):
-    shell("tool -i {infile} -o {outfile} {extra}")
-
-rule all:
-    input: expand(r("results/{sample}/final.out"), sample=config["samples"])
 
 rule process_sample:
     input:
@@ -82,7 +21,7 @@ rule process_sample:
         vcf  =       outdir("{sample}") + "/calls.vcf",
         rpt  =       outdir("{sample}") + "/qc.txt"
     resources:
-        threads = 4,
+        threads = config["threads"]["process"],
         mem_mb  = config["mem_mb"]["process"]
     shell:
         """
@@ -94,10 +33,3 @@ rule process_sample:
 
 if not workflow.is_local:
     include: "cluster_profile.smk"
-configfile: "config.yaml"
-
-SAMPLES  = config["samples"]          # list of sample IDs
-WORKDIR  = config.get("workdir", "results")
-def outdir(sample):      return f"{WORKDIR}/{sample}"
-
-localrules: all
