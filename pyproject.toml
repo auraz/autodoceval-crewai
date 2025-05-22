@@ -63,4 +63,4 @@ indent-style = "space"
 line-ending = "auto"
 
 [tool.setuptools]
-packages = ["autodoceval_crewai", "evcrew"]   # ← include the renamed code
+packages = ["autodoceval_crewai", "evcrew", "evcrew.agents"]   # ← include the renamed code
