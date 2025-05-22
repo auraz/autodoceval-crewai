@@ -11,6 +11,19 @@ if 'modules' in sys.modules and not getattr(sys.modules['modules'], '__path__', 
 import importlib
 importlib.import_module("modules")
 # -----------------------------------------------------------------------
+def _import_core():
+    """
+    Return the locally-bundled modules.core package, overriding any
+    third-party single-file module called “modules” that might already
+    be on sys.modules.
+    """
+    if "modules" in sys.modules and not getattr(sys.modules["modules"], "__path__", None):
+        # A non-package called “modules” is present – remove it.
+        del sys.modules["modules"]
+
+    import importlib
+    return importlib.import_module("modules.core")
+# -----------------------------------------------------------------------
 
 configfile: "snakefile-config.yaml"
 
@@ -50,10 +63,12 @@ rule evaluate_doc:
         memory  = MEMORY_ID
     run:
         Path(output.score).parent.mkdir(parents=True, exist_ok=True)
-        from modules.core import evaluate_document, format_percentage
+        core = _import_core()
+
         txt = Path(input.doc).read_text()
-        score, fb = evaluate_document(txt, memory_id=params.memory)
-        Path(output.score).write_text(format_percentage(score))
+        score, fb = core.evaluate_document(txt, memory_id=params.memory)
+
+        Path(output.score).write_text(core.format_percentage(score))
         Path(output.feedback).write_text(fb)
 
 rule auto_improve:
@@ -67,9 +82,10 @@ rule auto_improve:
         target_score  = TARGET_SCORE
     run:
         Path(output.final).parent.mkdir(parents=True, exist_ok=True)
-        from modules.core import auto_improve_document
-        final_path = auto_improve_document(
-            doc_path     = input.doc,
+        core = _import_core()
+
+        final_path = core.auto_improve_document(
+            doc_path       = input.doc,
             max_iterations = params.max_iter,
             target_score   = params.target_score,
             memory_id      = params.memory,
