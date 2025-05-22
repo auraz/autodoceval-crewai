@@ -24,7 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))  # allow “import modu
 #     - docs/poor_doc.md
 #     - docs/medium_doc.md
 # ---------------------------------------------------------------------
-configfile: "config.yaml"
+configfile: "snakefile-config.yaml"
 
 MEMORY_ID      = config.get("memory_id")          # may be None
 MAX_ITERATIONS = config.get("max_iterations", 3)
