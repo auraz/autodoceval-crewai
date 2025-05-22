@@ -1,3 +1,10 @@
+__all__ = [
+    "evaluate_document",
+    "improve_document",
+    "auto_improve_document",
+    "generate_improved_path",
+]
+
 """Core functionality for document evaluation and improvement using CrewAI agents."""
 
 import os
@@ -9,7 +16,7 @@ from datetime import datetime
 from pathlib import Path
 
 from .agents import DocumentEvaluator, DocumentImprover
-from .file_utils import read_file, write_file
+from .file_utils import read_file, write_file, format_percentage
 
 
 _OUTPUT_BASE_DIR = Path("docs") / "output"
@@ -85,11 +92,6 @@ def improve_document(
         },
     )
     return improved_doc
-
-
-def format_percentage(score: float) -> str:
-    """Format a score as a percentage with 1 decimal place."""
-    return f"{score * 100:.1f}%"
 
 
 def generate_improved_path(doc_path: str, iteration: int) -> str:
@@ -200,56 +202,3 @@ def auto_improve_document(
     
     print("\n✅ Auto-improvement process completed!")
     return final_path
-
-from .agents import (
-    get_evaluator_agent,
-    get_improver_agent,
-    get_auto_improver_agents,
-)
-from pathlib import Path
-
-def format_percentage(score: float) -> str:
-    """Format a float score as a percentage string with 1 decimal place."""
-    return f"{score * 100:.1f}%"
-
-def evaluate_document(text: str, memory_id=None):
-    """Evaluate a document and return (score, feedback)."""
-    agent = get_evaluator_agent(memory_id=memory_id)
-    result = agent.evaluate(text)
-    return result["score"], result["feedback"]
-
-def improve_document(text: str, memory_id=None):
-    """Improve a document and return the improved text."""
-    agent = get_improver_agent(memory_id=memory_id)
-    return agent.improve(text)
-
-def auto_improve_document(
-    doc_path,
-    max_iterations=3,
-    target_score=0.85,
-    memory_id=None,
-    persist_memory=False,
-):
-    """
-    Iteratively improve a document until it reaches the target score or max_iterations.
-    Returns the path to the final improved document.
-    """
-    agents = get_auto_improver_agents(memory_id=memory_id)
-    improver = agents["improver"]
-    evaluator = agents["evaluator"]
-
-    doc_path = Path(doc_path)
-    text = doc_path.read_text()
-    improved_text = text
-    for i in range(max_iterations):
-        improved_text = improver.improve(improved_text)
-        score, _ = evaluator.evaluate(improved_text)
-        if score >= target_score:
-            break
-
-    final_path = doc_path.parent / f"{doc_path.stem}_final.md"
-    final_path.write_text(improved_text)
-    if persist_memory and memory_id:
-        improver.save_memory()
-        evaluator.save_memory()
-    return str(final_path)
