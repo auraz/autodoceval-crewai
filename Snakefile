@@ -3,6 +3,12 @@ from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # allow “import modules…”
 
+# --- guarantee that our local "modules" package is importable ----------
+if 'modules' in sys.modules and not getattr(sys.modules['modules'], '__path__', None):
+    # a non-package named "modules" was imported earlier – remove it
+    del sys.modules['modules']
+# -----------------------------------------------------------------------
+
 configfile: "snakefile-config.yaml"
 
 INPUT_DIR  = Path("docs") / "input"
