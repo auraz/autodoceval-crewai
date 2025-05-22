@@ -2,6 +2,9 @@
 from pathlib import Path
 import sys
 
+from modules import core               # needed for core.format_percentage
+from modules.core import evaluate_document, auto_improve_document  # if you prefer direct names
+
 configfile: "snakefile-config.yaml"
 
 INPUT_DIR  = Path("docs") / "input"
@@ -30,22 +33,22 @@ rule evaluate:
         expand(str(OUTPUT_DIR) + "/{name}/{name}_feedback.txt",
                name=[stem(p) for p in DOCS])
 
-# rule evaluate_doc:
-#     input:
-#         doc=lambda wc: next(p for p in DOCS if stem(p) == wc.name)
-#     output:
-#         score    = str(OUTPUT_DIR) + "/{name}/{name}_score.txt",
-#         feedback = str(OUTPUT_DIR) + "/{name}/{name}_feedback.txt"
-#     params:
-#         memory  = MEMORY_ID
-#     run:
-#         Path(output.score).parent.mkdir(parents=True, exist_ok=True)
+rule evaluate_doc:
+    input:
+        doc=lambda wc: next(p for p in DOCS if stem(p) == wc.name)
+    output:
+        score    = str(OUTPUT_DIR) + "/{name}/{name}_score.txt",
+        feedback = str(OUTPUT_DIR) + "/{name}/{name}_feedback.txt"
+    params:
+        memory  = MEMORY_ID
+    run:
+        Path(output.score).parent.mkdir(parents=True, exist_ok=True)
 
-#         txt = Path(input.doc).read_text()
-#         score, fb = evcrew.evaluate_document(txt, memory_id=params.memory)
+        txt = Path(input.doc).read_text()
+        score, fb = evaluate_document(txt, memory_id=params.memory)
 
-#         Path(output.score).write_text(core.format_percentage(score))
-#         Path(output.feedback).write_text(fb)
+        Path(output.score).write_text(core.format_percentage(score))
+        Path(output.feedback).write_text(fb)
 
 # rule auto_improve:
 #     input:
