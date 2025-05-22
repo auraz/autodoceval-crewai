@@ -2,8 +2,7 @@
 from pathlib import Path
 import sys
 
-from modules import core               # needed for core.format_percentage
-from modules.core import evaluate_document, auto_improve_document  # if you prefer direct names
+from evcrew import core               # needed for core.format_percentage
 
 configfile: "snakefile-config.yaml"
 
@@ -17,8 +16,7 @@ TARGET_SCORE   = config.get("target_score", 0.7)
 # iterate through all *.md files in docs/input/
 DOCS = sorted(INPUT_DIR.glob("*.md"))
 
-# helper to strip extension once
-def stem(path): return Path(path).stem
+def stem(path): return Path(path).stem  # helper to strip extension once
 
 
 rule all:
@@ -28,6 +26,8 @@ rule all:
 
 rule evaluate:
     input:
+        DOCS
+    output:
         expand(str(OUTPUT_DIR) + "/{name}/{name}_score.txt",
                name=[stem(p) for p in DOCS]) +
         expand(str(OUTPUT_DIR) + "/{name}/{name}_feedback.txt",

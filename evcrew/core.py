@@ -66,7 +66,7 @@ def improve_document(
     feedback: str,
     memory_id: Optional[str] = None,
     previous_score: Optional[float] = None,
-) -> str:
+) -> str:ad
     """Generates improved document based on feedback.
     
     Args:
