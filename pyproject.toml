@@ -31,7 +31,7 @@ dependencies = [
 dev = [
     "ruff>=0.2.0",
     "build",
-    "twine",
+    "uv>=0.1.0",
 ]
 
 [project.scripts]
