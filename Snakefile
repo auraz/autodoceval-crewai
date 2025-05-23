@@ -17,14 +17,18 @@ def write_file(file_path: str, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding="utf-8")
 
-configfile: "snakefile-config.yaml"
+# Default configuration values
+DEFAULT_MEMORY_ID = "api_docs_memory"  # Set to None to generate unique IDs
+DEFAULT_MAX_ITERATIONS = 3             # Auto-improve iteration cap
+DEFAULT_TARGET_SCORE = 85              # Desired quality score (0-100 scale)
 
-INPUT_DIR  = Path("docs") / "input"
+# Get configuration from command line or use defaults
+MEMORY_ID = config.get("memory_id", DEFAULT_MEMORY_ID)
+MAX_ITERATIONS = config.get("max_iterations", DEFAULT_MAX_ITERATIONS)
+TARGET_SCORE = config.get("target_score", DEFAULT_TARGET_SCORE)
+
+INPUT_DIR = Path("docs") / "input"
 OUTPUT_DIR = Path("docs") / "output"
-
-MEMORY_ID      = config.get("memory_id")          # may be None
-MAX_ITERATIONS = config.get("max_iterations", 3)
-TARGET_SCORE   = config.get("target_score", 70)  # Now 0-100 scale
 
 # iterate through all *.md files in docs/input/
 DOCS = sorted(INPUT_DIR.glob("*.md"))

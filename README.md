@@ -110,13 +110,10 @@ The Snakemake workflow handles:
 
 ## Configuration
 
-Edit `snakefile-config.yaml` to set defaults:
-
-```yaml
-memory_id: "api_docs_memory"  # Memory context identifier
-max_iterations: 3              # Maximum improvement iterations
-target_score: 85               # Target quality score (0-100)
-```
+Default values are set in the Snakefile:
+- `memory_id`: "api_docs_memory" (memory context identifier)
+- `max_iterations`: 3 (maximum improvement iterations)
+- `target_score`: 85 (target quality score, 0-100 scale)
 
 Override via command line:
 
@@ -143,7 +140,6 @@ autodoceval-crewai/
 │   └── output/          # Evaluation results
 ├── memory/              # Persistent memory storage
 ├── Snakefile            # Workflow definitions
-├── snakefile-config.yaml # Default configuration
 ├── pyproject.toml       # Package metadata
 ├── CLAUDE.md            # AI assistant instructions
 └── README.md            # This file

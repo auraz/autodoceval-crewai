@@ -58,8 +58,8 @@ AutoDocEval is a document evaluation and improvement system using CrewAI agents 
    - `auto_improve_document()`: Runs an iterative improvement loop until target quality or iteration limit
 
 4. **Workflow System**: Snakemake is used for defining document processing workflows:
-   - Configuration in `snakefile-config.yaml`
-   - Rules for document evaluation and improvement in `Snakefile`
+   - All workflow rules and configuration in `Snakefile`
+   - Rules for document evaluation and improvement
 
 ### Data Flow
 
