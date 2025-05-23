@@ -5,7 +5,21 @@ import uuid
 from datetime import datetime
 
 from evcrew.agents import DocumentEvaluator, DocumentImprover
-from evcrew.file_utils import format_percentage, read_file, write_file
+
+# Utility functions
+def format_percentage(value: float) -> str:
+    """Format float as percentage string."""
+    return f"{value * 100:.1f}%"
+
+def read_file(file_path: str) -> str:
+    """Read file and return its contents."""
+    return Path(file_path).read_text(encoding="utf-8")
+
+def write_file(file_path: str, content: str) -> None:
+    """Write content to file, creating directories if needed."""
+    path = Path(file_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
 
 configfile: "snakefile-config.yaml"
 

@@ -9,8 +9,23 @@ the CrewAI implementation of AutoDocEval for document evaluation and improvement
 from pathlib import Path
 
 # Import AutoDocEval CrewAI modules
-from autodoceval_crewai import evaluate_document, improve_document
-from autodoceval_crewai.file_utils import read_file, write_file
+from evcrew import evaluate_document, improve_document
+
+
+# Utility functions
+def format_percentage(value: float) -> str:
+    """Format float as percentage string."""
+    return f"{value * 100:.1f}%"
+
+def read_file(file_path: str) -> str:
+    """Read file and return its contents."""
+    return Path(file_path).read_text(encoding="utf-8")
+
+def write_file(file_path: str, content: str) -> None:
+    """Write content to file, creating directories if needed."""
+    path = Path(file_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
 
 # ===============================================================
 # Create sample documents with different levels of quality
@@ -178,11 +193,6 @@ print("=" * 80)
 # ===============================================================
 # Evaluate documents with and without memory
 # ===============================================================
-
-
-def format_percentage(score):
-    """Format a score as a percentage with 1 decimal place."""
-    return f"{score * 100:.1f}%"
 
 
 # Define memory ID for this demo
