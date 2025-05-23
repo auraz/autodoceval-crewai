@@ -14,7 +14,9 @@
       "Bash(mkdir:*)",
       "Bash(tree:*)",
       "Bash(git push:*)",
-      "Bash(awk:*)"
+      "Bash(awk:*)",
+      "Bash(find:*)",
+      "Bash(mv:*)"
     ],
     "deny": []
   }

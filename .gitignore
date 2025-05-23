@@ -160,3 +160,4 @@ memory/
 *.swo
 *~
 .ruff_cache/
+venv/

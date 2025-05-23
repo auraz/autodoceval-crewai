@@ -139,9 +139,10 @@ autodoceval-crewai/
 │   ├── input/           # Input documents
 │   └── output/          # Evaluation results
 ├── memory/              # Persistent memory storage
+├── config/              # Configuration files
+│   └── CLAUDE.md        # AI assistant instructions
 ├── Snakefile            # Workflow definitions
 ├── pyproject.toml       # Package metadata
-├── CLAUDE.md            # AI assistant instructions
 └── README.md            # This file
 ```
 
