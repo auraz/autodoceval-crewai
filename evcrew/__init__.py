@@ -3,8 +3,8 @@ from .agents import (  # re-export all public agent symbols
     BaseAgent,
     DocumentEvaluator,
     DocumentImprover,
-    parse_agent_response,
-    parse_improver_response,
+    parse_eval,
+    parse_improve,
 )
 
 __all__ = [
@@ -12,6 +12,6 @@ __all__ = [
     "BaseAgent",
     "DocumentEvaluator",
     "DocumentImprover",
-    "parse_agent_response",
-    "parse_improver_response",
+    "parse_eval",
+    "parse_improve",
 ]

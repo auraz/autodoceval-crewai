@@ -1,6 +1,6 @@
 from typing import Optional
 
-from .base import BaseAgent, parse_agent_response
+from .base import BaseAgent, parse_eval
 
 
 class DocumentEvaluator(BaseAgent):
@@ -29,11 +29,11 @@ class DocumentEvaluator(BaseAgent):
         memory_context = "Before evaluating, review your previous evaluations for similar documents. Maintain consistency in feedback style and acknowledge progress compared to earlier versions.\n\n"
         task_description = memory_context + task_description
         
-        response = self.execute_task(task_description)
-        score, feedback = parse_agent_response(response)
+        response = self.exec(task_description)
+        score, feedback = parse_eval(response)
 
-        content_preview = self.truncate_text(content)
-        feedback_preview = self.truncate_text(feedback, 200)
+        content_preview = self.truncate(content)
+        feedback_preview = self.truncate(feedback, 200)
         memory_entry = f"Document: {content_preview}\nScore: {score}\nFeedback: {feedback_preview}..."
         self.add_memory(memory_entry)
 

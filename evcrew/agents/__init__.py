@@ -1,4 +1,4 @@
-from .base import AgentResult, BaseAgent, parse_agent_response, parse_improver_response
+from .base import AgentResult, BaseAgent, parse_eval, parse_improve
 from .evaluator import DocumentEvaluator
 from .improver import DocumentImprover
 
@@ -7,6 +7,6 @@ __all__ = [
     "BaseAgent",
     "DocumentEvaluator",
     "DocumentImprover",
-    "parse_agent_response",
-    "parse_improver_response",
+    "parse_eval",
+    "parse_improve",
 ]

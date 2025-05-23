@@ -30,27 +30,25 @@ class BaseAgent:
             memory=memory_instance,
         )
         self.add_memory = self.agent.memory.add  # Direct reference to memory add method
-    
-    def execute_task(self, task_description: str) -> str:
-        """Execute a task and return the agent's response."""
-        task_instance = Task(description=task_description, expected_output="")
-        return self.agent.execute_task(task_instance)
+     
+    def exec(self, task_desc: str) -> str:
+        """Execute task and return response."""
+        task = Task(description=task_desc, expected_output="")
+        return self.agent.execute_task(task)
     
     @staticmethod
-    def truncate_text(text: str, max_length: int = 100) -> str:
-        """Truncate text to specified length with ellipsis."""
-        return (text[:max_length] + "...") if len(text) > max_length else text
+    def truncate(text: str, max_len: int = 100) -> str:
+        """Truncate text to max length."""
+        return (text[:max_len] + "...") if len(text) > max_len else text
 
 
-def parse_agent_response(response: str) -> tuple[float, str]:
-    """Parse JSON agent response to extract score and feedback."""
+def parse_eval(response: str) -> tuple[float, str]:
+    """Parse evaluator JSON response."""
     data = json.loads(response.strip())
-    score = float(data["score"])
-    feedback = str(data["feedback"])
-    return score, feedback
+    return float(data["score"]), str(data["feedback"])
 
 
-def parse_improver_response(response: str) -> str:
-    """Parse JSON improver response to extract improved content."""
+def parse_improve(response: str) -> str:
+    """Parse improver JSON response."""
     data = json.loads(response.strip())
     return str(data["improved_content"])

@@ -1,6 +1,6 @@
 from typing import Optional
 
-from .base import BaseAgent, parse_improver_response
+from .base import BaseAgent, parse_improve
 
 
 class DocumentImprover(BaseAgent):
@@ -29,12 +29,12 @@ class DocumentImprover(BaseAgent):
         memory_guidance = "Before improving this document, review your memory of previous document improvements. Reuse effective techniques, keep consistent style/terminology, and address recurring issues.\n\n"
         task_description = memory_guidance + task_description
         
-        response = self.execute_task(task_description)
-        result = parse_improver_response(response)
+        response = self.exec(task_description)
+        result = parse_improve(response)
 
-        content_preview = self.truncate_text(content)
-        improved_preview = self.truncate_text(result)
-        feedback_preview = self.truncate_text(feedback, 200)
+        content_preview = self.truncate(content)
+        improved_preview = self.truncate(result)
+        feedback_preview = self.truncate(feedback, 200)
         memory_entry = f"Original: {content_preview}\nImproved: {improved_preview}\nBased on feedback: {feedback_preview}..."
         self.add_memory(memory_entry)
 
