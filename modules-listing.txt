@@ -1,4 +1,0 @@
-modules/
-├── align.smk
-├── call.smk
-├── qc.smk

@@ -1,9 +1,9 @@
 import os
-from typing import Any
 
 from crewai import Agent, Task
 
 from .base import create_memory_instance
+
 
 class DocumentImprover:
     """Document improvement agent using CrewAI."""
@@ -34,8 +34,7 @@ class DocumentImprover:
         # Always prepend memory guidance
         task_description = (
             "Before improving this document, review your memory of previous document improvements. "
-            "Reuse effective techniques, keep consistent style/terminology, and address recurring issues.\n\n"
-            + task_description
+            "Reuse effective techniques, keep consistent style/terminology, and address recurring issues.\n\n" + task_description
         )
 
         # Create a Task object with the prompt keyword.

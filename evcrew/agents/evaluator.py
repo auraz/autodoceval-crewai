@@ -1,9 +1,9 @@
 import os
-from typing import Tuple
 
 from crewai import Agent, Task
 
 from .base import create_memory_instance, parse_agent_response
+
 
 class DocumentEvaluator:
     """Document evaluation agent using CrewAI."""
@@ -21,7 +21,7 @@ class DocumentEvaluator:
             memory=memory_instance,
         )
 
-    def evaluate(self, content: str) -> Tuple[float, str]:
+    def evaluate(self, content: str) -> tuple[float, str]:
         """Evaluate a document and return a score and feedback string."""
         task_description = (
             "Evaluate the following document for clarity, completeness, and coherence.\n"

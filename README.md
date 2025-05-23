@@ -40,9 +40,6 @@ autodoceval-crewai auto-improve docs/example.md --iterations 5 --target 0.8
 # Use persistent memory with custom ID
 autodoceval-crewai grade docs/example.md --memory-id my-docs-memory
 autodoceval-crewai improve docs/example.md --memory-id my-docs-memory
-
-# Disable memory for one-off operations
-autodoceval-crewai grade docs/example.md --no-memory
 ```
 
 ### Using Snakemake Workflows
@@ -80,10 +77,10 @@ improved_content = improve_document(content, feedback)
 # Run auto-improvement loop
 auto_improve_document("docs/example.md", max_iterations=3, target_score=0.75)
 
-# Use persistent memory
+# Use persistent memory with custom ID
 score, feedback = evaluate_document(content, memory_id="my-docs-memory")
 improved_content = improve_document(content, feedback, memory_id="my-docs-memory")
-auto_improve_document("docs/example.md", memory_id="my-docs-memory", persist_memory=True)
+auto_improve_document("docs/example.md", memory_id="my-docs-memory")
 ```
 
 ## Architecture
@@ -97,14 +94,35 @@ The system employs a closed-loop approach for iterative improvement until a targ
 
 ### Persistent Memory
 
-The agents support persistent memory capabilities:
+Memory is always enabled for all agent operations:
 
-- Remember previous document evaluations and improvements
+- Agents remember previous document evaluations and improvements
 - Learn from past experiences for more consistent results
 - Recognize patterns across multiple documents
 - Share knowledge between evaluation and improvement processes
+- Auto-generated memory IDs ensure persistence across sessions
 
 For detailed information on using memory features, see [MEMORY.md](MEMORY.md).
+
+## Project Structure
+
+```
+autodoceval-crewai/
+├── evcrew/           # Core package
+│   ├── agents/       # Agent implementations
+│   │   ├── base.py   # Base utilities and types
+│   │   ├── evaluator.py  # Document evaluator agent
+│   │   └── improver.py   # Document improver agent
+│   ├── core.py       # Core API functions
+│   └── file_utils.py # File handling utilities
+├── docs/             # Input/output documentation
+│   ├── input/        # Documents to evaluate
+│   └── output/       # Evaluation results and improved documents
+├── examples/         # Example scripts
+├── Snakefile         # Workflow definitions
+├── pyproject.toml    # Package configuration
+└── README.md         # This file
+```
 
 ## License
 

@@ -6,8 +6,6 @@ This script demonstrates how to use persistent memory capabilities in
 the CrewAI implementation of AutoDocEval for document evaluation and improvement.
 """
 
-import os
-import time
 from pathlib import Path
 
 # Import AutoDocEval CrewAI modules
@@ -170,7 +168,7 @@ curl -H "Authorization: Bearer TOKEN" https://api.example.com/items?type=book
 
 # Write sample documents to files
 write_file(EXAMPLES_DIR / "poor_doc.md", POOR_QUALITY_DOC)
-write_file(EXAMPLES_DIR / "medium_doc.md", MEDIUM_QUALITY_DOC) 
+write_file(EXAMPLES_DIR / "medium_doc.md", MEDIUM_QUALITY_DOC)
 write_file(EXAMPLES_DIR / "high_doc.md", HIGH_QUALITY_DOC)
 
 print("=" * 80)
@@ -181,9 +179,11 @@ print("=" * 80)
 # Evaluate documents with and without memory
 # ===============================================================
 
+
 def format_percentage(score):
     """Format a score as a percentage with 1 decimal place."""
     return f"{score * 100:.1f}%"
+
 
 # Define memory ID for this demo
 MEMORY_ID = "api_docs_memory"
