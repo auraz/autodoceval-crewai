@@ -4,7 +4,7 @@
       "Bash(rm:*)",
       "Bash(ruff check:*)",
       "Bash(ruff format:*)",
-      "Bash(git add:*)",
+      "Bash(git:*)",
       "Bash(grep:*)",
       "Bash(ls:*)",
       "Bash(python3:*)",

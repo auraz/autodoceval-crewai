@@ -1,5 +1,6 @@
 from .agents import (  # re-export all public agent symbols
     AgentResult,
+    BaseAgent,
     DocumentEvaluator,
     DocumentImprover,
     parse_agent_response,
@@ -8,6 +9,7 @@ from .agents import (  # re-export all public agent symbols
 
 __all__ = [
     "AgentResult",
+    "BaseAgent",
     "DocumentEvaluator",
     "DocumentImprover",
     "parse_agent_response",

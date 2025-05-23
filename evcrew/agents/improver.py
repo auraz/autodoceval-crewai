@@ -1,25 +1,18 @@
-import os
+from typing import Optional
 
-from crewai import Agent, Task
-from crewai.memory import Memory as CrewMemory
-
-from .base import parse_improver_response
+from .base import BaseAgent, parse_improver_response
 
 
-class DocumentImprover:
+class DocumentImprover(BaseAgent):
     """Document improvement agent using CrewAI."""
 
-    def __init__(self, memory_id: str, api_key: str | None = None):
-        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
-        self.memory_id = memory_id
-        memory_instance = CrewMemory(memory_id=memory_id)
-        self.agent = Agent(
+    def __init__(self, memory_id: str, api_key: Optional[str] = None):
+        super().__init__(
+            memory_id=memory_id,
             role="Documentation Improver",
             goal="Transform documents into clear, comprehensive, and well-structured content",
             backstory="You are a senior technical writer who specializes in improving documentation",
-            verbose=True,
-            llm_model="gpt-4",
-            memory=memory_instance,
+            api_key=api_key,
         )
 
     def improve(self, content: str, feedback: str) -> str:
@@ -35,14 +28,14 @@ class DocumentImprover:
 
         memory_guidance = "Before improving this document, review your memory of previous document improvements. Reuse effective techniques, keep consistent style/terminology, and address recurring issues.\n\n"
         task_description = memory_guidance + task_description
-        task_instance = Task(description=task_description, expected_output="")  # Create task for agent execution
-        response = self.agent.execute_task(task_instance)
+        
+        response = self.execute_task(task_description)
         result = parse_improver_response(response)
 
-        if self.agent.memory:
-            content_preview = (content[:100] + "...") if len(content) > 100 else content
-            improved_preview = (result[:100] + "...") if len(result) > 100 else result
-            memory_entry = f"Original: {content_preview}\nImproved: {improved_preview}\nBased on feedback: {feedback[:200]}..."
-            self.agent.memory.add(memory_entry)
+        content_preview = self.truncate_text(content)
+        improved_preview = self.truncate_text(result)
+        feedback_preview = self.truncate_text(feedback, 200)
+        memory_entry = f"Original: {content_preview}\nImproved: {improved_preview}\nBased on feedback: {feedback_preview}..."
+        self.add_memory_entry(memory_entry)
 
         return result

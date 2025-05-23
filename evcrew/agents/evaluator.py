@@ -1,25 +1,18 @@
-import os
+from typing import Optional
 
-from crewai import Agent, Task
-from crewai.memory import Memory as CrewMemory
-
-from .base import parse_agent_response
+from .base import BaseAgent, parse_agent_response
 
 
-class DocumentEvaluator:
+class DocumentEvaluator(BaseAgent):
     """Document evaluation agent using CrewAI."""
 
-    def __init__(self, memory_id: str, api_key: str | None = None):
-        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
-        self.memory_id = memory_id
-        memory_instance = CrewMemory(memory_id=memory_id)
-        self.agent = Agent(
+    def __init__(self, memory_id: str, api_key: Optional[str] = None):
+        super().__init__(
+            memory_id=memory_id,
             role="Document Quality Evaluator",
             goal="Evaluate document clarity and provide constructive feedback",
             backstory="You are an expert technical writer with years of experience evaluating documentation quality",
-            verbose=True,
-            llm_model="gpt-4",
-            memory=memory_instance,
+            api_key=api_key,
         )
 
     def evaluate(self, content: str) -> tuple[float, str]:
@@ -35,13 +28,13 @@ class DocumentEvaluator:
 
         memory_context = "Before evaluating, review your previous evaluations for similar documents. Maintain consistency in feedback style and acknowledge progress compared to earlier versions.\n\n"
         task_description = memory_context + task_description
-        task_instance = Task(description=task_description, expected_output="")  # Create task for agent execution
-        response = self.agent.execute_task(task_instance)
+        
+        response = self.execute_task(task_description)
         score, feedback = parse_agent_response(response)
 
-        if self.agent.memory:
-            content_preview = (content[:100] + "...") if len(content) > 100 else content
-            memory_entry = f"Document: {content_preview}\nScore: {score}\nFeedback: {feedback[:200]}..."
-            self.agent.memory.add(memory_entry)
+        content_preview = self.truncate_text(content)
+        feedback_preview = self.truncate_text(feedback, 200)
+        memory_entry = f"Document: {content_preview}\nScore: {score}\nFeedback: {feedback_preview}..."
+        self.add_memory_entry(memory_entry)
 
         return score, feedback.strip()
