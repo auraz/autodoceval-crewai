@@ -31,8 +31,8 @@ ruff format .
 python -m build
 
 # Run Snakemake workflows
-snakemake --cores 1 evaluate_doc --config input_file=docs/input/example.md
-snakemake --cores 1 auto_improve --config input_file=docs/input/example.md max_iterations=3 target_score=0.8
+snakemake --cores 1 evaluate
+snakemake --cores 1 all --config max_iterations=3 target_score=80
 ```
 
 

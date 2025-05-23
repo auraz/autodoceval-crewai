@@ -31,14 +31,14 @@ export OPENAI_API_KEY=your_api_key_here
 # Initialize project structure
 snakemake --cores 1 init
 
-# Evaluate document
-snakemake --cores 1 grade --config input_file=docs/example.md
+# Evaluate all documents
+snakemake --cores 1 evaluate
 
-# Improve document
-snakemake --cores 1 improve --config input_file=docs/example.md
+# Auto-improve all documents  
+snakemake --cores 1 all
 
 # Auto-improve with custom settings
-snakemake --cores 1 auto_improve --config input_file=docs/example.md max_iterations=5 target_score=0.8
+snakemake --cores 1 all --config max_iterations=5 target_score=80
 
 # Clean outputs
 snakemake --cores 1 clean
@@ -57,13 +57,9 @@ score, feedback = evaluate_document(content)
 # Improve a document
 improved_content = improve_document(content, feedback)
 
-# Run auto-improvement loop
-auto_improve_document("docs/example.md", max_iterations=3, target_score=0.75)
-
 # Use persistent memory with custom ID
 score, feedback = evaluate_document(content, memory_id="my-docs-memory")
 improved_content = improve_document(content, feedback, memory_id="my-docs-memory")
-auto_improve_document("docs/example.md", memory_id="my-docs-memory")
 ```
 
 ## Architecture

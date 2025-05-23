@@ -1,3 +1,3 @@
 memory_id: "api_docs_memory"        # optional – set to null to disable memory
 max_iterations: 3                   # auto-improve iteration cap
-target_score: 0.85                  # desired minimum quality score
+target_score: 85                    # desired minimum quality score (0-100 scale)
