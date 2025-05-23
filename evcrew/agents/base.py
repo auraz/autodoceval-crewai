@@ -21,6 +21,7 @@ class BaseAgent:
         """Initialize base agent with CrewAI configuration."""
         self.api_key = os.getenv("OPENAI_API_KEY")
         self.memory_id = memory_id
+        self.prompts_dir = Path(__file__).parent / "prompts"
         memory_instance = CrewMemory(memory_id=memory_id)
         self.agent = Agent(
             role=role,

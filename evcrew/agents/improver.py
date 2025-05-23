@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from .base import BaseAgent, parse_improve
 
 
@@ -16,7 +14,7 @@ class DocumentImprover(BaseAgent):
 
     def improve(self, content: str, feedback: str) -> str:
         """Generate an improved document based on feedback."""
-        prompt_path = Path(__file__).parent / "prompts" / "improver.md"
+        prompt_path = self.prompts_dir / "improver.md"
         prompt_template = prompt_path.read_text()
         task_description = prompt_template.format(content=content, feedback=feedback)
         

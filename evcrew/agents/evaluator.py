@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from .base import BaseAgent, parse_eval
 
 
@@ -16,7 +14,7 @@ class DocumentEvaluator(BaseAgent):
 
     def evaluate(self, content: str) -> tuple[float, str]:
         """Evaluate a document and return a score and feedback string."""
-        prompt_path = Path(__file__).parent / "prompts" / "evaluator.md"
+        prompt_path = self.prompts_dir / "evaluator.md"
         prompt_template = prompt_path.read_text()
         task_description = prompt_template.format(content=content)
         
