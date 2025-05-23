@@ -35,24 +35,6 @@ snakemake --cores 1 evaluate_doc --config input_file=docs/input/example.md
 snakemake --cores 1 auto_improve --config input_file=docs/input/example.md max_iterations=3 target_score=0.8
 ```
 
-### CLI Usage
-
-```bash
-# Evaluate document clarity
-autodoceval-crewai grade docs/example.md
-
-# Improve a document
-autodoceval-crewai improve docs/example.md
-
-# Run auto-improvement loop
-autodoceval-crewai auto-improve docs/example.md --iterations 3 --target 0.7
-
-# Use persistent memory with custom ID
-autodoceval-crewai grade docs/example.md --memory-id my-docs-memory
-
-# Disable memory for one-off operations
-autodoceval-crewai grade docs/example.md --no-memory
-```
 
 ## Architecture Overview
 

@@ -34,8 +34,6 @@ dev = [
     "uv>=0.1.0",
 ]
 
-[project.scripts]
-autodoceval-crewai = "evcrew.cli:main"
 
 [tool.ruff]
 line-length = 170

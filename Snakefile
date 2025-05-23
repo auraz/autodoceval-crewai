@@ -50,26 +50,25 @@ rule evaluate_doc:
         Path(output.score).write_text(core.format_percentage(score))
         Path(output.feedback).write_text(fb)
 
-# rule auto_improve:
-#     input:
-#         doc = lambda wc: next(p for p in DOCS if stem(p) == wc.name)
-#     output:
-#         final = str(OUTPUT_DIR) + "/{name}/{name}_final.md"
-#     params:
-#         memory        = MEMORY_ID,
-#         max_iter      = MAX_ITERATIONS,
-#         target_score  = TARGET_SCORE
-#     run:
-#         Path(output.final).parent.mkdir(parents=True, exist_ok=True)
+rule auto_improve:
+    input:
+        doc = lambda wc: next(p for p in DOCS if stem(p) == wc.name)
+    output:
+        final = str(OUTPUT_DIR) + "/{name}/{name}_final.md"
+    params:
+        memory        = MEMORY_ID,
+        max_iter      = MAX_ITERATIONS,
+        target_score  = TARGET_SCORE
+    run:
+        Path(output.final).parent.mkdir(parents=True, exist_ok=True)
 
-#         final_path = evcrew.auto_improve_document(
-#             doc_path       = input.doc,
-#             max_iterations = params.max_iter,
-#             target_score   = params.target_score,
-#             memory_id      = params.memory,
-#             persist_memory = bool(params.memory),
-#         )
-#         # auto_improve_document already writes the file; just
-#         # symlink/copy so Snakemake has its expected output
-#         from shutil import copyfile
-#         copyfile(final_path, output.final)
+        final_path = core.auto_improve_document(
+            doc_path       = str(input.doc),
+            max_iterations = params.max_iter,
+            target_score   = params.target_score,
+            memory_id      = params.memory,
+        )
+        # auto_improve_document already writes the file; just
+        # symlink/copy so Snakemake has its expected output
+        from shutil import copyfile
+        copyfile(final_path, output.final)

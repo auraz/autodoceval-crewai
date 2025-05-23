@@ -25,23 +25,6 @@ export OPENAI_API_KEY=your_api_key_here
 
 ## Usage
 
-### Command Line Interface
-
-```bash
-# Evaluate document clarity
-autodoceval-crewai grade docs/example.md
-
-# Improve a document
-autodoceval-crewai improve docs/example.md
-
-# Run auto-improvement loop (3 iterations max, 70% quality target)
-autodoceval-crewai auto-improve docs/example.md --iterations 5 --target 0.8
-
-# Use persistent memory with custom ID
-autodoceval-crewai grade docs/example.md --memory-id my-docs-memory
-autodoceval-crewai improve docs/example.md --memory-id my-docs-memory
-```
-
 ### Using Snakemake Workflows
 
 ```bash
