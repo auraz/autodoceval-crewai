@@ -22,6 +22,6 @@ class DocumentEvaluator(BaseAgent):
         score, feedback = parse_eval(response)
 
         memory_entry = f"Document: {content}\nScore: {score}\nFeedback: {feedback}"
-        self.add_memory(memory_entry)
+        self._save_memory(memory_entry)
 
         return score, feedback.strip()

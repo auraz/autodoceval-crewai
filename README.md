@@ -13,8 +13,8 @@ Document evaluation and improvement using CrewAI agents with persistent memory c
 git clone https://github.com/yourusername/autodoceval-crewai.git
 cd autodoceval-crewai
 
-# Create and activate virtual environment
-python -m venv venv
+# Create and activate virtual environment (requires Python 3.10+)
+python3.12 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install the package in development mode
@@ -148,7 +148,7 @@ autodoceval-crewai/
 
 ## Requirements
 
-- Python 3.9+
+- Python 3.10+ (3.12 recommended)
 - OpenAI API key
 - Dependencies installed via `uv pip install -e .`
 

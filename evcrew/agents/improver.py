@@ -22,6 +22,6 @@ class DocumentImprover(BaseAgent):
         result = parse_improve(response)
 
         memory_entry = f"Original: {content}\nImproved: {result}\nBased on feedback: {feedback}"
-        self.add_memory(memory_entry)
+        self._save_memory(memory_entry)
 
         return result
