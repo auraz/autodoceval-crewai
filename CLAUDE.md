@@ -119,3 +119,6 @@ Each agent uses the OpenAI GPT-4 model by default and includes persistent memory
 - always use virtualenv
 - do not use fallbacks
 - do not support backward compatibility
+- use short and consice function and method names
+- avoid redefinitions
+- promts max lenghs is 100

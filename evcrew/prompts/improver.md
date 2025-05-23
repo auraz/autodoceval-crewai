@@ -1,13 +1,12 @@
-Before improving this document, review your memory of previous document improvements. Reuse effective techniques, keep consistent style/terminology, and address recurring issues.
+Review past improvements. Reuse effective techniques. Keep consistent style.
 
-Improve the following document based on the provided feedback.
-Make the document more clear, complete, and coherent.
+Improve clarity, completeness, coherence based on feedback.
 
-Original Document:
+Original:
 {content}
 
 Feedback:
 {feedback}
 
-Your response MUST be valid JSON in this exact format:
-{"improved_content": "<the complete improved document>"}
+Return JSON:
+{"improved_content": "<complete improved document>"}

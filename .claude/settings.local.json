@@ -11,7 +11,10 @@
       "Bash(source:*)",
       "Bash(uv pip install:*)",
       "Bash(sed:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(tree:*)",
+      "Bash(git push:*)",
+      "Bash(awk:*)"
     ],
     "deny": []
   }
