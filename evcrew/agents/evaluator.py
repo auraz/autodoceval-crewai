@@ -1,8 +1,9 @@
 import os
 
 from crewai import Agent, Task
+from crewai.memory import Memory as CrewMemory
 
-from .base import create_memory_instance, parse_agent_response
+from .base import parse_agent_response
 
 
 class DocumentEvaluator:
@@ -11,7 +12,7 @@ class DocumentEvaluator:
     def __init__(self, memory_id: str, api_key: str | None = None):
         self.api_key = api_key or os.getenv("OPENAI_API_KEY")
         self.memory_id = memory_id
-        memory_instance = create_memory_instance(memory_id)
+        memory_instance = CrewMemory(memory_id=memory_id)
         self.agent = Agent(
             role="Document Quality Evaluator",
             goal="Evaluate document clarity and provide constructive feedback",

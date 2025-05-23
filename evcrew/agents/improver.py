@@ -1,8 +1,7 @@
 import os
 
 from crewai import Agent, Task
-
-from .base import create_memory_instance
+from crewai.memory import Memory as CrewMemory
 
 
 class DocumentImprover:
@@ -11,7 +10,7 @@ class DocumentImprover:
     def __init__(self, memory_id: str, api_key: str | None = None):
         self.api_key = api_key or os.getenv("OPENAI_API_KEY")
         self.memory_id = memory_id
-        memory_instance = create_memory_instance(memory_id)
+        memory_instance = CrewMemory(memory_id=memory_id)
         self.agent = Agent(
             role="Documentation Improver",
             goal="Transform documents into clear, comprehensive, and well-structured content",

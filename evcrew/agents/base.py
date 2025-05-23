@@ -1,4 +1,3 @@
-from crewai.memory import Memory as CrewMemory
 from pydantic import BaseModel
 
 
@@ -8,23 +7,25 @@ class AgentResult(BaseModel):
     feedback: str = ""
 
 
-def create_memory_instance(memory_id: str) -> CrewMemory:
-    """Return a CrewMemory instance for persistent agent memory."""
-    return CrewMemory(memory_id=memory_id)
-
-
 def parse_agent_response(response: str) -> tuple[float, str]:
+    """Parse agent response to extract score and feedback."""
     lines = response.splitlines()
-    score = 0.0
-    feedback_lines: list[str] = []
-    for line in lines:
+    
+    def extract_score(line: str) -> float:
+        """Extract score from line if it starts with 'Score:'."""
         if line.startswith("Score:"):
             try:
-                score = float(line[len("Score:") :].strip())
+                return float(line[len("Score:"):].strip())
             except ValueError:
-                score = 0.0
-        elif line.startswith("Feedback:"):
-            feedback_lines.append(line[len("Feedback:") :].strip())
-        elif feedback_lines:
-            feedback_lines.append(line.strip())
-    return score, "\n".join(feedback_lines)
+                return 0.0
+        return 0.0
+    
+    score = next((extract_score(line) for line in lines if line.startswith("Score:")), 0.0)
+    
+    feedback_start = next((i for i, line in enumerate(lines) if line.startswith("Feedback:")), -1)
+    if feedback_start >= 0:
+        feedback_lines = [lines[feedback_start][len("Feedback:"):].strip()]
+        feedback_lines.extend(line.strip() for line in lines[feedback_start + 1:] if line.strip())
+        return score, "\n".join(feedback_lines)
+    
+    return score, ""
