@@ -1,5 +1,7 @@
 import json
 import os
+from datetime import datetime
+from pathlib import Path
 from typing import Optional
 
 from crewai import Agent, Task
@@ -29,17 +31,21 @@ class BaseAgent:
             llm_model="gpt-4",
             memory=memory_instance,
         )
-        self.add_memory = self.agent.memory.add  # Direct reference to memory add method
+        self.memory_dir = Path("docs/memory") / memory_id
+        self.memory_dir.mkdir(parents=True, exist_ok=True)
+        self.add_memory = self._save_memory  # Override to save to file
      
     def exec(self, task_desc: str) -> str:
         """Execute task and return response."""
         task = Task(description=task_desc, expected_output="")
         return self.agent.execute_task(task)
     
-    @staticmethod
-    def truncate(text: str, max_len: int = 100) -> str:
-        """Truncate text to max length."""
-        return (text[:max_len] + "...") if len(text) > max_len else text
+    def _save_memory(self, entry: str) -> None:
+        """Save memory entry to MD file and agent memory."""
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = self.memory_dir / f"{timestamp}.md"
+        filename.write_text(entry)
+        self.agent.memory.add(entry)
 
 
 def parse_eval(response: str) -> tuple[float, str]:

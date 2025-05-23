@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Optional
 
 from .base import BaseAgent, parse_improve
@@ -17,25 +18,14 @@ class DocumentImprover(BaseAgent):
 
     def improve(self, content: str, feedback: str) -> str:
         """Generate an improved document based on feedback."""
-        task_description = (
-            "Improve the following document based on the provided feedback.\n"
-            "Make the document more clear, complete, and coherent.\n\n"
-            f"Original Document:\n{content}\n\n"
-            f"Feedback:\n{feedback}\n\n"
-            "Your response MUST be valid JSON in this exact format:\n"
-            '{"improved_content": "<the complete improved document>"}'
-        )
-
-        memory_guidance = "Before improving this document, review your memory of previous document improvements. Reuse effective techniques, keep consistent style/terminology, and address recurring issues.\n\n"
-        task_description = memory_guidance + task_description
+        prompt_path = Path(__file__).parent / "prompts" / "improver.md"
+        prompt_template = prompt_path.read_text()
+        task_description = prompt_template.format(content=content, feedback=feedback)
         
         response = self.exec(task_description)
         result = parse_improve(response)
 
-        content_preview = self.truncate(content)
-        improved_preview = self.truncate(result)
-        feedback_preview = self.truncate(feedback, 200)
-        memory_entry = f"Original: {content_preview}\nImproved: {improved_preview}\nBased on feedback: {feedback_preview}..."
+        memory_entry = f"Original: {content}\nImproved: {result}\nBased on feedback: {feedback}"
         self.add_memory(memory_entry)
 
         return result

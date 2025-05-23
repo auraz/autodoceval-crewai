@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Optional
 
 from .base import BaseAgent, parse_eval
@@ -17,24 +18,14 @@ class DocumentEvaluator(BaseAgent):
 
     def evaluate(self, content: str) -> tuple[float, str]:
         """Evaluate a document and return a score and feedback string."""
-        task_description = (
-            "Evaluate the following document for clarity, completeness, and coherence.\n"
-            "Score it on a scale from 0.0 to 1.0 where 1.0 is perfect.\n"
-            "Provide specific, actionable feedback for improvement.\n\n"
-            f"Document:\n{content}\n\n"
-            "Your response MUST be valid JSON in this exact format:\n"
-            '{"score": <number between 0.0 and 1.0>, "feedback": "<detailed feedback>"}'
-        )
-
-        memory_context = "Before evaluating, review your previous evaluations for similar documents. Maintain consistency in feedback style and acknowledge progress compared to earlier versions.\n\n"
-        task_description = memory_context + task_description
+        prompt_path = Path(__file__).parent / "prompts" / "evaluator.md"
+        prompt_template = prompt_path.read_text()
+        task_description = prompt_template.format(content=content)
         
         response = self.exec(task_description)
         score, feedback = parse_eval(response)
 
-        content_preview = self.truncate(content)
-        feedback_preview = self.truncate(feedback, 200)
-        memory_entry = f"Document: {content_preview}\nScore: {score}\nFeedback: {feedback_preview}..."
+        memory_entry = f"Document: {content}\nScore: {score}\nFeedback: {feedback}"
         self.add_memory(memory_entry)
 
         return score, feedback.strip()
