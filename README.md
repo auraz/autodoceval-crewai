@@ -34,11 +34,11 @@ export OPENAI_API_KEY=your_api_key_here
 All document processing is handled through Snakemake workflows:
 
 ```bash
-# Evaluate all documents in docs/input/
-snakemake --cores 1 evaluate
-
-# Auto-improve all documents  
+# Auto-improve all documents in docs/input/
 snakemake --cores 1 all
+
+# Or just evaluate specific documents without improvement
+snakemake --cores 1 docs/output/myfile/myfile_score.txt
 
 # Run with custom settings
 snakemake --cores 1 all --config max_iterations=5 target_score=80 memory_id=my-project

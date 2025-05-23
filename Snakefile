@@ -41,15 +41,6 @@ rule all:
         expand(str(OUTPUT_DIR) + "/{name}/{name}_final.md",
                name=[stem(p) for p in DOCS])
 
-rule evaluate:
-    input:
-        DOCS
-    output:
-        expand(str(OUTPUT_DIR) + "/{name}/{name}_score.txt",
-               name=[stem(p) for p in DOCS]) +
-        expand(str(OUTPUT_DIR) + "/{name}/{name}_feedback.txt",
-               name=[stem(p) for p in DOCS])
-
 rule evaluate_doc:
     input:
         doc=lambda wc: next(p for p in DOCS if stem(p) == wc.name)
