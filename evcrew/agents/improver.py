@@ -31,14 +31,9 @@ class DocumentImprover:
             "Provide only the improved document as your response, without any additional commentary."
         )
 
-        # Always prepend memory guidance
-        task_description = (
-            "Before improving this document, review your memory of previous document improvements. "
-            "Reuse effective techniques, keep consistent style/terminology, and address recurring issues.\n\n" + task_description
-        )
-
-        # Create a Task object with the prompt keyword.
-        task_instance = Task(description=task_description, expected_output="")
+        memory_guidance = "Before improving this document, review your memory of previous document improvements. Reuse effective techniques, keep consistent style/terminology, and address recurring issues.\n\n"
+        task_description = memory_guidance + task_description
+        task_instance = Task(description=task_description, expected_output="")  # Create task for agent execution
         result = self.agent.execute_task(task_instance)
 
         if self.agent.memory:

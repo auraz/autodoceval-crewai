@@ -35,7 +35,7 @@ dev = [
 ]
 
 [project.scripts]
-autodoceval-crewai = "autodoceval_crewai.cli:main"
+autodoceval-crewai = "evcrew.cli:main"
 
 [tool.ruff]
 line-length = 170
@@ -63,4 +63,4 @@ indent-style = "space"
 line-ending = "auto"
 
 [tool.setuptools]
-packages = ["autodoceval_crewai", "evcrew", "evcrew.agents"]   # ← include the renamed code
+packages = ["evcrew", "evcrew.agents"]

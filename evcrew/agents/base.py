@@ -9,7 +9,7 @@ class AgentResult(BaseModel):
 
 
 def create_memory_instance(memory_id: str) -> CrewMemory:
-    """Return a CrewMemory instance. Memory is always required."""
+    """Return a CrewMemory instance for persistent agent memory."""
     return CrewMemory(memory_id=memory_id)
 
 

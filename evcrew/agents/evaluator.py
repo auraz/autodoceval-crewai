@@ -33,15 +33,9 @@ class DocumentEvaluator:
             "Feedback: <detailed feedback>"
         )
 
-        # Always include memory context (memory_id is guaranteed)
-        memory_context = (
-            "Before evaluating, review your previous evaluations for similar documents. "
-            "Maintain consistency in feedback style and acknowledge progress compared to earlier versions.\n\n"
-        )
+        memory_context = "Before evaluating, review your previous evaluations for similar documents. Maintain consistency in feedback style and acknowledge progress compared to earlier versions.\n\n"
         task_description = memory_context + task_description
-
-        # Create a Task object with the prompt keyword.
-        task_instance = Task(description=task_description, expected_output="")
+        task_instance = Task(description=task_description, expected_output="")  # Create task for agent execution
         response = self.agent.execute_task(task_instance)
         score, feedback = parse_agent_response(response)
 

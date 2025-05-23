@@ -4,7 +4,12 @@
       "Bash(rm:*)",
       "Bash(ruff check:*)",
       "Bash(ruff format:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(grep:*)",
+      "Bash(ls:*)",
+      "Bash(python3:*)",
+      "Bash(source:*)",
+      "Bash(uv pip install:*)"
     ],
     "deny": []
   }
