@@ -117,3 +117,5 @@ Each agent uses the OpenAI GPT-4 model by default and includes persistent memory
 - commit after each change
 - update documentation when commit
 - always use virtualenv
+- do not use fallbacks
+- do not support backward compatibility
