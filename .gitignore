@@ -155,7 +155,7 @@ cython_debug/
 
 # Project specific
 docs/output/
-docs/memory/
+memory/
 *.swp
 *.swo
 *~

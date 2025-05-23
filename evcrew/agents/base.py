@@ -31,7 +31,7 @@ class BaseAgent:
             llm_model="gpt-4",
             memory=memory_instance,
         )
-        self.memory_dir = Path("docs/memory") / memory_id
+        self.memory_dir = Path("memory") / memory_id
         self.memory_dir.mkdir(parents=True, exist_ok=True)
         self.add_memory = self._save_memory  # Override to save to file
      
