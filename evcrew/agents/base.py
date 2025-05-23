@@ -37,9 +37,8 @@ class BaseAgent:
         return self.agent.execute_task(task_instance)
     
     def add_memory_entry(self, entry: str) -> None:
-        """Add an entry to agent's memory if available."""
-        if self.agent.memory:
-            self.agent.memory.add(entry)
+        """Add an entry to agent's memory."""
+        self.agent.memory.add(entry)
     
     @staticmethod
     def truncate_text(text: str, max_length: int = 100) -> str:
