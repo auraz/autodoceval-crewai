@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Optional
 
 from .base import BaseAgent, parse_eval
 
@@ -7,13 +6,12 @@ from .base import BaseAgent, parse_eval
 class DocumentEvaluator(BaseAgent):
     """Document evaluation agent using CrewAI."""
 
-    def __init__(self, memory_id: str, api_key: Optional[str] = None):
+    def __init__(self, memory_id: str):
         super().__init__(
             memory_id=memory_id,
             role="Document Quality Evaluator",
             goal="Evaluate document clarity and provide constructive feedback",
             backstory="You are an expert technical writer with years of experience evaluating documentation quality",
-            api_key=api_key,
         )
 
     def evaluate(self, content: str) -> tuple[float, str]:

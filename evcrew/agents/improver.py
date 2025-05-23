@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Optional
 
 from .base import BaseAgent, parse_improve
 
@@ -7,13 +6,12 @@ from .base import BaseAgent, parse_improve
 class DocumentImprover(BaseAgent):
     """Document improvement agent using CrewAI."""
 
-    def __init__(self, memory_id: str, api_key: Optional[str] = None):
+    def __init__(self, memory_id: str):
         super().__init__(
             memory_id=memory_id,
             role="Documentation Improver",
             goal="Transform documents into clear, comprehensive, and well-structured content",
             backstory="You are a senior technical writer who specializes in improving documentation",
-            api_key=api_key,
         )
 
     def improve(self, content: str, feedback: str) -> str:

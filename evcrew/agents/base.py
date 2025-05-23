@@ -2,7 +2,6 @@ import json
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 from crewai import Agent, Task
 from crewai.memory import Memory as CrewMemory
@@ -18,9 +17,9 @@ class AgentResult(BaseModel):
 class BaseAgent:
     """Base class for CrewAI agents with common initialization and task execution."""
     
-    def __init__(self, memory_id: str, role: str, goal: str, backstory: str, api_key: Optional[str] = None):
+    def __init__(self, memory_id: str, role: str, goal: str, backstory: str):
         """Initialize base agent with CrewAI configuration."""
-        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
+        self.api_key = os.getenv("OPENAI_API_KEY")
         self.memory_id = memory_id
         memory_instance = CrewMemory(memory_id=memory_id)
         self.agent = Agent(
