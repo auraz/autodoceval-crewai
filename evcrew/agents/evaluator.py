@@ -35,6 +35,6 @@ class DocumentEvaluator(BaseAgent):
         content_preview = self.truncate_text(content)
         feedback_preview = self.truncate_text(feedback, 200)
         memory_entry = f"Document: {content_preview}\nScore: {score}\nFeedback: {feedback_preview}..."
-        self.add_memory_entry(memory_entry)
+        self.add_memory(memory_entry)
 
         return score, feedback.strip()

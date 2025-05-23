@@ -30,15 +30,12 @@ class BaseAgent:
             llm_model="gpt-4",
             memory=memory_instance,
         )
+        self.add_memory = self.agent.memory.add  # Direct reference to memory add method
     
     def execute_task(self, task_description: str) -> str:
         """Execute a task and return the agent's response."""
         task_instance = Task(description=task_description, expected_output="")
         return self.agent.execute_task(task_instance)
-    
-    def add_memory_entry(self, entry: str) -> None:
-        """Add an entry to agent's memory."""
-        self.agent.memory.add(entry)
     
     @staticmethod
     def truncate_text(text: str, max_length: int = 100) -> str:

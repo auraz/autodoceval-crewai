@@ -36,6 +36,6 @@ class DocumentImprover(BaseAgent):
         improved_preview = self.truncate_text(result)
         feedback_preview = self.truncate_text(feedback, 200)
         memory_entry = f"Original: {content_preview}\nImproved: {improved_preview}\nBased on feedback: {feedback_preview}..."
-        self.add_memory_entry(memory_entry)
+        self.add_memory(memory_entry)
 
         return result
