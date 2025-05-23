@@ -1,6 +1,10 @@
 # AutoDocEval with CrewAI
 
-Document evaluation and improvement in a closed-loop cycle using CrewAI agents with persistent memory capabilities.
+Document evaluation and improvement using CrewAI agents with persistent memory capabilities.
+
+## What is CrewAI?
+
+[CrewAI](https://github.com/crewai/crewai) is a framework for orchestrating role-playing autonomous AI agents. In AutoDocEval, we use CrewAI to create specialized agents for document evaluation and improvement, leveraging their collaborative capabilities for more effective documentation enhancement.
 
 ## Installation
 
@@ -13,7 +17,7 @@ cd autodoceval-crewai
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# Install the package
+# Install the package in development mode
 uv pip install -e .
 ```
 
@@ -27,81 +31,129 @@ export OPENAI_API_KEY=your_api_key_here
 
 ### Using Snakemake Workflows
 
-```bash
-# Initialize project structure
-snakemake --cores 1 init
+All document processing is handled through Snakemake workflows:
 
-# Evaluate all documents
+```bash
+# Evaluate all documents in docs/input/
 snakemake --cores 1 evaluate
 
 # Auto-improve all documents  
 snakemake --cores 1 all
 
-# Auto-improve with custom settings
-snakemake --cores 1 all --config max_iterations=5 target_score=80
+# Run with custom settings
+snakemake --cores 1 all --config max_iterations=5 target_score=80 memory_id=my-project
 
 # Clean outputs
 snakemake --cores 1 clean
 ```
 
+Place your markdown documents in `docs/input/` and the workflow will:
+- Evaluate each document and save scores to `docs/output/{name}/{name}_score.txt`
+- Generate feedback in `docs/output/{name}/{name}_feedback.txt`
+- Create improved versions in `docs/output/{name}/{name}_final.md`
+
 ### Python API
 
+For programmatic usage:
+
 ```python
-from autodoceval_crewai import evaluate_document, improve_document, auto_improve_document
+from evcrew import evaluate_document, improve_document
 
 # Evaluate a document
 with open("docs/example.md", "r") as f:
     content = f.read()
-score, feedback = evaluate_document(content)
+score, feedback = evaluate_document(content, memory_id="my-docs")
+print(f"Score: {score:.1f}%")
+print(f"Feedback: {feedback}")
 
 # Improve a document
-improved_content = improve_document(content, feedback)
+improved_content = improve_document(content, feedback, memory_id="my-docs")
 
-# Use persistent memory with custom ID
-score, feedback = evaluate_document(content, memory_id="my-docs-memory")
-improved_content = improve_document(content, feedback, memory_id="my-docs-memory")
+# Save the improved version
+with open("docs/example_improved.md", "w") as f:
+    f.write(improved_content)
 ```
 
 ## Architecture
 
-AutoDocEval uses CrewAI agents to evaluate and improve documentation quality:
+AutoDocEval uses CrewAI agents to evaluate and improve documentation:
 
-- `DocumentEvaluator`: Agent that analyzes document clarity and provides feedback
-- `DocumentImprover`: Agent that revises documents based on evaluation feedback
+### Agents
 
-The system employs a closed-loop approach for iterative improvement until a target quality score is reached.
+- **DocumentEvaluator**: Analyzes document clarity, completeness, and coherence
+  - Returns scores on a 0-100 scale
+  - Provides specific, actionable feedback
+  - Maintains consistency across evaluations
 
-### Persistent Memory
+- **DocumentImprover**: Revises documents based on evaluation feedback
+  - Applies feedback to enhance clarity
+  - Preserves document intent and technical accuracy
+  - Learns from previous improvements
+
+### Memory System
 
 Memory is always enabled for all agent operations:
 
-- Agents remember previous document evaluations and improvements
-- Learn from past experiences for more consistent results
+- Agents remember previous evaluations and improvements
+- Learn from past experiences for consistent results
 - Recognize patterns across multiple documents
-- Share knowledge between evaluation and improvement processes
-- Auto-generated memory IDs ensure persistence across sessions
+- Memory is persisted to `memory/{memory_id}/` as markdown files
+- Each memory entry is timestamped for tracking
 
-For detailed information on using memory features, see [MEMORY.md](MEMORY.md).
+### Workflow System
+
+The Snakemake workflow handles:
+- Batch processing of multiple documents
+- Iterative improvement loops
+- Progress tracking and reporting
+- Automatic file organization
+
+## Configuration
+
+Edit `snakefile-config.yaml` to set defaults:
+
+```yaml
+memory_id: "api_docs_memory"  # Memory context identifier
+max_iterations: 3              # Maximum improvement iterations
+target_score: 85               # Target quality score (0-100)
+```
+
+Override via command line:
+
+```bash
+snakemake --cores 1 all --config memory_id=null target_score=90
+```
 
 ## Project Structure
 
 ```
 autodoceval-crewai/
-├── evcrew/           # Core package
-│   ├── agents/       # Agent implementations
-│   │   ├── base.py   # Base utilities and types
-│   │   ├── evaluator.py  # Document evaluator agent
-│   │   └── improver.py   # Document improver agent
-│   ├── core.py       # Core API functions
-│   └── file_utils.py # File handling utilities
-├── docs/             # Input/output documentation
-│   ├── input/        # Documents to evaluate
-│   └── output/       # Evaluation results and improved documents
-├── examples/         # Example scripts
-├── Snakefile         # Workflow definitions
-├── pyproject.toml    # Package configuration
-└── README.md         # This file
+├── evcrew/              # Core package
+│   ├── agents/          # Agent implementations
+│   │   ├── base.py      # Base agent class
+│   │   ├── evaluator.py # Document evaluator
+│   │   └── improver.py  # Document improver
+│   ├── prompts/         # Agent prompt templates
+│   │   ├── evaluator.md # Evaluation prompt
+│   │   └── improver.md  # Improvement prompt
+│   ├── __init__.py      # Package exports
+│   └── core.py          # Simple API wrappers
+├── docs/                # Document storage
+│   ├── input/           # Input documents
+│   └── output/          # Evaluation results
+├── memory/              # Persistent memory storage
+├── Snakefile            # Workflow definitions
+├── snakefile-config.yaml # Default configuration
+├── pyproject.toml       # Package metadata
+├── CLAUDE.md            # AI assistant instructions
+└── README.md            # This file
 ```
+
+## Requirements
+
+- Python 3.9+
+- OpenAI API key
+- Dependencies installed via `uv pip install -e .`
 
 ## License
 
