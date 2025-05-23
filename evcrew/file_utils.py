@@ -4,7 +4,7 @@ import os
 
 
 def read_file(file_path: str) -> str:
-    """Reads a file and returns its contents."""
+    """Read file and return its contents."""
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"File not found: {file_path}")
 
@@ -13,8 +13,7 @@ def read_file(file_path: str) -> str:
 
 
 def write_file(file_path: str, content: str) -> None:
-    """Writes content to a file, creating directories if needed."""
-    # Create directories if they don't exist
+    """Write content to file, creating directories if needed."""
     dir_path = os.path.dirname(file_path)
     if dir_path:
         os.makedirs(dir_path, exist_ok=True)
@@ -24,6 +23,11 @@ def write_file(file_path: str, content: str) -> None:
 
 
 def get_file_extension(file_path: str) -> str:
-    """Gets the extension of a file."""
+    """Get file extension from path."""
     _, ext = os.path.splitext(file_path)
     return ext
+
+
+def format_percentage(value: float) -> str:
+    """Format float as percentage string."""
+    return f"{value * 100:.1f}%"

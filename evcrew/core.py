@@ -33,20 +33,12 @@ def _save_run_data(
 
     (run_dir / "input.txt").write_text(input_content, encoding="utf-8")
     (run_dir / "output.txt").write_text(output_content, encoding="utf-8")
-    meta |= {"run_type": run_type, "timestamp": timestamp}  # merge extra info
+    meta |= {"run_type": run_type, "timestamp": timestamp}
     (run_dir / "metadata.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
 
 
 def evaluate_document(doc_content: str, memory_id: str) -> tuple[float, str]:
-    """Evaluates a document for clarity and returns score and reasoning.
-
-    Args:
-        doc_content: The document content to evaluate
-        memory_id: Identifier for persistent memory between evaluations
-
-    Returns:
-        Tuple containing (score, reasoning)
-    """
+    """Evaluate document for clarity and return score with reasoning."""
     evaluator = DocumentEvaluator(memory_id)
     score, reasoning = evaluator.evaluate(doc_content)
 
@@ -65,17 +57,7 @@ def improve_document(
     memory_id: str,
     previous_score: float | None = None,
 ) -> str:
-    """Generates improved document based on feedback.
-
-    Args:
-        doc_content: The original document content
-        feedback: Feedback on the document
-        memory_id: Identifier for persistent memory between improvements
-        previous_score: The score prior to this improvement
-
-    Returns:
-        Improved document content
-    """
+    """Generate improved document based on evaluation feedback."""
     improver = DocumentImprover(memory_id)
     improved_doc = improver.improve(doc_content, feedback)
 
@@ -93,14 +75,14 @@ def improve_document(
 
 
 def generate_improved_path(doc_path: str, iteration: int) -> str:
-    """Return docs/output/<name>/<name>_iterN.md"""
+    """Generate output path for improved document at given iteration."""
     base_name = os.path.basename(doc_path)
     filename, ext = os.path.splitext(base_name) if "." in base_name else (base_name, ".md")
 
-    if "_iter" in filename:  # drop any existing “…_iterX”
+    if "_iter" in filename:  
         filename = filename.split("_iter")[0]
 
-    out_dir = _OUTPUT_BASE_DIR / filename  # docs/output/<name>/
+    out_dir = _OUTPUT_BASE_DIR / filename  
     out_dir.mkdir(parents=True, exist_ok=True)
 
     return str(out_dir / f"{filename}_iter{iteration}{ext}")
@@ -116,7 +98,7 @@ def auto_improve_document(
     if not os.path.exists(doc_path):
         raise FileNotFoundError(f"File not found: {doc_path}")
 
-    final_path: str = doc_path  # will track the latest version
+    final_path: str = doc_path  
 
     print(f"🔄 Starting auto-improvement loop for {doc_path}")
     print(f"Target score: {format_percentage(target_score)}")

@@ -9,7 +9,8 @@
       "Bash(ls:*)",
       "Bash(python3:*)",
       "Bash(source:*)",
-      "Bash(uv pip install:*)"
+      "Bash(uv pip install:*)",
+      "Bash(sed:*)"
     ],
     "deny": []
   }
