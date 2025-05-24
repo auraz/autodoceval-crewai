@@ -36,8 +36,8 @@ class DocumentCrew:
 
         return improve_result.improved_content, eval_result.score, eval_result.feedback
 
-    def auto_improve(self, content: str, output_dir: Path, doc_name: str, max_iterations: int = 3, target_score: float = 85, input_path: Optional[str] = None) -> tuple[str, list]:
-        """Auto-improve document until target score or max iterations reached."""
+    def auto_improve(self, content: str, output_dir: Path, doc_name: str, max_iterations: int = 3, target_score: float = 85, input_path: Optional[str] = None) -> tuple[str, list, str]:
+        """Auto-improve document until target score or max iterations reached, returns (final_doc, history, status)."""
         improvement_history = []
         print("  📊 Initial evaluation...", end="", flush=True)
         score, feedback = self.evaluator.execute(content)
@@ -49,7 +49,8 @@ class DocumentCrew:
         self.evaluator.save_results(score, feedback, output_dir, f"{doc_name}_initial", content)
 
         if score >= target_score:
-            return content, improvement_history
+            print(f"✅ Target score already met! Score: {score:.1f}%")
+            return content, improvement_history, "target_met_original"
 
         current_doc = content
         current_feedback = feedback
@@ -72,4 +73,12 @@ class DocumentCrew:
             current_doc = improved_doc
             current_feedback = feedback
 
-        return current_doc, improvement_history
+        final_score = improvement_history[-1]["score"]
+        if final_score >= target_score:
+            status = "target_reached"
+            print(f"✅ Target score reached! Final score: {final_score:.1f}%")
+        else:
+            status = "max_iterations_reached"
+            print(f"⚠️  Max iterations reached. Final score: {final_score:.1f}%")
+
+        return current_doc, improvement_history, status

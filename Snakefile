@@ -124,19 +124,7 @@ rule auto_improve:
         print(f"🔄 Starting auto-improvement for {wildcards.name}...")
         
         crew = DocumentCrew()
-        final_doc, history = crew.auto_improve(doc_content, output_dir, wildcards.name, params.max_iter, params.target_score, str(input.doc))
+        final_doc, history, status = crew.auto_improve(doc_content, output_dir, wildcards.name, params.max_iter, params.target_score, str(input.doc))
         
-        # Save final document
         write_file(output.final, final_doc)
-        
-        # Determine status
-        final_score = history[-1]["score"]
-        if final_score >= params.target_score:
-            status = "target_reached"
-            print(f"✅ Target score reached! Final score: {final_score:.1f}%")
-        else:
-            status = "max_iterations_reached"
-            print(f"⚠️  Max iterations reached. Final score: {final_score:.1f}%")
-            
-        # Save metadata
         save_auto_improve_metadata(output.final, wildcards.name, history, params, status)
