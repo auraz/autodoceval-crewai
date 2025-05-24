@@ -17,9 +17,16 @@ class DocumentEvaluator(BaseAgent):
 
     def create_task(self, content: str, **kwargs) -> Task:
         """Create evaluation task for the given content."""
+        doc_name = kwargs.get("doc_name", "document")
         prompt_path = self.prompts_dir / "evaluator.md"
         description = prompt_path.read_text().format(content=content)
-        return Task(description=description, expected_output="Document evaluation with score and feedback", agent=self.agent, output_pydantic=EvaluationResult)
+        return Task(
+            id=f"evaluate_{doc_name}",
+            description=description,
+            expected_output="Document evaluation with score and feedback",
+            agent=self.agent,
+            output_pydantic=EvaluationResult,
+        )
 
     def execute(self, content: str) -> tuple[float, str]:
         """Execute document evaluation and return a score and feedback string."""

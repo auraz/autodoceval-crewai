@@ -17,9 +17,12 @@ class DocumentImprover(BaseAgent):
 
     def create_task(self, content: str, **kwargs) -> Task:
         """Create improvement task for the given content."""
+        doc_name = kwargs.get("doc_name", "document")
         prompt_path = self.prompts_dir / "improver_task.md"
         description = prompt_path.read_text().format(content=content)
-        return Task(description=description, expected_output="Improved version of the document", agent=self.agent, output_pydantic=ImprovementResult)
+        return Task(
+            id=f"improve_{doc_name}", description=description, expected_output="Improved version of the document", agent=self.agent, output_pydantic=ImprovementResult
+        )
 
     def execute(self, content: str, feedback: str) -> str:
         """Execute document improvement based on feedback."""

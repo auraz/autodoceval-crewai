@@ -34,7 +34,7 @@ def save_auto_improve_metadata(output_path: str, doc_name: str, history: list[di
     metadata_path = Path(output_path).parent / f"{doc_name}_auto_improve_metadata.json"
     metadata_path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
 
-DEFAULT_MAX_ITERATIONS = 3  # Auto-improve iteration cap
+DEFAULT_MAX_ITERATIONS = 2  # Auto-improve iteration cap
 DEFAULT_TARGET_SCORE = 85  # Desired quality score (0-100 scale)
 
 MAX_ITERATIONS = config.get("max_iterations", DEFAULT_MAX_ITERATIONS)
@@ -88,7 +88,7 @@ rule evaluate_and_improve:
         
         print(f"🔄 Evaluating and improving {wildcards.name}...")
         crew = DocumentCrew()
-        improved_content, score, feedback = crew.evaluate_and_improve(doc_content)
+        improved_content, score, feedback = crew.evaluate_and_improve(doc_content, wildcards.name)
         
         print(f"   Final score: {score:.1f}%")
         

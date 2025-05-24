@@ -27,8 +27,9 @@ Analyze the following document and provide a detailed assessment.
    - Are common use cases covered?
    - Is troubleshooting or help information provided?
 
-Analyze the document thoroughly against these criteria. 
-Be specific about what's missing or could be improved.
+Analyze the document against these criteria.
 
-Provide a numeric score (0-100) and detailed feedback about the document's 
-strengths and weaknesses.
+Provide:
+1. A numeric score (0-100)
+2. ONE most important improvement that would have the biggest impact
+3. Keep feedback under 100 words, focus on actionable changes

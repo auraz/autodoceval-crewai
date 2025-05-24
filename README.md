@@ -134,7 +134,7 @@ The Snakemake workflow handles:
 ## Configuration
 
 Default values are set in the Snakefile:
-- `max_iterations`: 3 (maximum improvement iterations)
+- `max_iterations`: 2 (maximum improvement iterations)
 - `target_score`: 85 (target quality score, 0-100 scale)
 
 Override via command line:

@@ -17,10 +17,10 @@ class DocumentCrew:
         self.evaluator = DocumentEvaluator()
         self.improver = DocumentImprover()
 
-    def evaluate_and_improve(self, content: str) -> tuple[str, float, str]:
+    def evaluate_and_improve(self, content: str, doc_name: str = "document") -> tuple[str, float, str]:
         """Evaluate a document and improve it in one workflow returning (improved_content, score, feedback)."""
-        eval_task = self.evaluator.create_task(content)
-        improve_task = self.improver.create_task(content)  # Feedback will come from context
+        eval_task = self.evaluator.create_task(content, doc_name=doc_name)
+        improve_task = self.improver.create_task(content, doc_name=doc_name)  # Feedback will come from context
         improve_task.context = [eval_task]
         crew = Crew(
             agents=[self.evaluator.agent, self.improver.agent],
@@ -36,7 +36,9 @@ class DocumentCrew:
 
         return improve_result.improved_content, eval_result.score, eval_result.feedback
 
-    def auto_improve(self, content: str, output_dir: Path, doc_name: str, max_iterations: int = 3, target_score: float = 85, input_path: Optional[str] = None) -> tuple[str, list, str]:
+    def auto_improve(
+        self, content: str, output_dir: Path, doc_name: str, max_iterations: int = 2, target_score: float = 85, input_path: Optional[str] = None
+    ) -> tuple[str, list, str]:
         """Auto-improve document until target score or max iterations reached, returns (final_doc, history, status)."""
         improvement_history = []
         print("  📊 Initial evaluation...", end="", flush=True)
