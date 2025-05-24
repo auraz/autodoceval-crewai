@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from crewai import Agent, Crew, Process, Task
+from crewai import Agent, Task
 from pydantic import BaseModel
 
 
@@ -40,16 +40,9 @@ class BaseAgent:
             output_pydantic=output_model
         )
         
-        # Single agent crew - simplified for individual tasks
-        # Note: For sequential workflows like auto-improve, we execute
-        # single-agent tasks one at a time rather than using a multi-agent crew
-        crew = Crew(
-            agents=[self.agent], 
-            tasks=[task],
-            verbose=False
-        )
-        result = crew.kickoff()
+        # Direct task execution - no crew needed for single agent
+        result = task.execute_sync()
         
-        return result.tasks_output[0].pydantic
+        return result.pydantic
 
 
