@@ -1,6 +1,18 @@
 """Utility functions for file operations."""
 
 from pathlib import Path
+from typing import Any, Protocol
+
+
+class FileProcessor(Protocol):
+    """Protocol for file processing functions."""
+    def __call__(self, content: str, **kwargs) -> Any: ...
+
+
+def process_file(processor: FileProcessor, input_path: str | Path, **kwargs) -> Any:
+    """Generic file processor that reads content and delegates to processor function."""
+    content = read_file(input_path)
+    return processor(content, **kwargs)
 
 
 def read_file(file_path: str | Path) -> str:

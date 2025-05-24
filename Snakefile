@@ -1,7 +1,8 @@
 """Snakemake workflow for document evaluation and improvement"""
 from pathlib import Path
 
-from evcrew import DocumentCrew
+from evcrew import DocumentCrew, process_file
+from evcrew.utils import read_file
 
 MAX_ITERATIONS = 2  # Auto-improve iteration cap
 TARGET_SCORE = 85  # Desired quality score (0-100 scale)
@@ -29,9 +30,11 @@ rule evaluate_one:
     output:
         json = str(OUTPUT_DIR) + "/{name}/{name}_evaluation.json"
     run:
-        print(f"📊 Evaluating {wildcards.name}...")
         crew = DocumentCrew()
-        crew.evaluate_file(input.doc, Path(output.json).parent, wildcards.name)
+        content = read_file(input.doc)
+        score, feedback = crew.evaluate(content)
+        print(f"📊 {wildcards.name}: {score:.0f}%")
+        crew.evaluator.save(score, feedback, content, Path(output.json).parent, wildcards.name, input.doc)
 
 rule evaluate_and_improve:
     input:
@@ -40,9 +43,12 @@ rule evaluate_and_improve:
         json = str(OUTPUT_DIR) + "/{name}/{name}_improved.json",
         improved = str(OUTPUT_DIR) + "/{name}/{name}_improved.md"
     run:
-        print(f"🔄 Evaluating and improving {wildcards.name}...")
+        print(f"🔄 {wildcards.name}: evaluating and improving...")
         crew = DocumentCrew()
-        crew.evaluate_and_improve_file(input.doc, Path(output.json).parent, wildcards.name)
+        content = read_file(input.doc)
+        improved_content, score, feedback = crew.evaluate_and_improve(content, wildcards.name)
+        print(f"   → Final: {score:.0f}%")
+        crew.improver.save(content, improved_content, score, feedback, Path(output.json).parent, wildcards.name, input.doc)
 
 rule auto_improve:
     input:
@@ -51,6 +57,6 @@ rule auto_improve:
         final = str(OUTPUT_DIR) + "/{name}/{name}_final.md",
         json = str(OUTPUT_DIR) + "/{name}/{name}_results.json"
     run:
-        print(f"🔄 Starting auto-improvement for {wildcards.name}...")
-        crew = DocumentCrew()
-        crew.auto_improve_file(input.doc, Path(output.final).parent, wildcards.name, MAX_ITERATIONS, TARGET_SCORE)
+        crew = DocumentCrew(TARGET_SCORE)
+        content = read_file(input.doc)
+        iterator = crew.auto_improve(content, Path(output.final).parent, wildcards.name, str(input.doc), MAX_ITERATIONS)

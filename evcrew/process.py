@@ -36,8 +36,8 @@ class DocumentIterator:
     doc_name: str
     doc_path: str
     initial_content: str
-    max_iterations: int = 2
     target_score: float = 85
+    max_iterations: int = 2
     
     # State fields
     _current_content: str = field(init=False)
@@ -59,9 +59,12 @@ class DocumentIterator:
     def __next__(self) -> IterationData:
         """Return iteration data for each improvement step."""
         if self._iteration_count == 0:
-            # Initial evaluation
+            print(f"📊 Evaluating {self.doc_name}... ", end="", flush=True)
+            
             score, feedback = self.evaluator.execute(self.initial_content)
             word_count = len(self.initial_content.split())
+            
+            print(f"{score:.0f}%")
             
             iteration_data = IterationData(
                 iteration=0,
@@ -75,17 +78,21 @@ class DocumentIterator:
             self._iteration_count += 1
             
             if score >= self.target_score:
+                self._print_final_status("target_met_original")
                 raise StopIteration("target_met_original")
                 
             return iteration_data
             
         elif self._iteration_count <= self.max_iterations:
-            # Improvement iteration
+            print(f"   → Improving (iteration {self._iteration_count}/{self.max_iterations})... ", end="", flush=True)
+                
             improved_content = self.improver.execute(self._current_content, self._current_feedback)
             score, feedback = self.evaluator.execute(improved_content)
             
             prev_score = self._iterations[-1].score
             improvement_delta = score - prev_score
+            
+            print(f"{score:.0f}% ({improvement_delta:+.0f}%)")
             
             iteration_data = IterationData(
                 iteration=self._iteration_count,
@@ -102,12 +109,20 @@ class DocumentIterator:
             self._iteration_count += 1
             
             if score >= self.target_score:
+                self._print_final_status("target_reached")
                 raise StopIteration("target_reached")
                 
             return iteration_data
             
         else:
+            self._print_final_status("max_iterations_reached")
             raise StopIteration("max_iterations_reached")
+    
+    def _print_final_status(self, status: str) -> None:
+        """Print status when iteration completes."""
+        icons = {"target_met_original": "✅", "target_reached": "✅", "max_iterations_reached": "⚠️"}
+        if icon := icons.get(status):
+            print(f"   {icon} Final score: {self.final_score:.0f}% ({status.replace('_', ' ')})")
     
     @property        
     def final_content(self) -> str:
