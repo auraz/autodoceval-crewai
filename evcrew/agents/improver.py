@@ -39,15 +39,11 @@ class DocumentImprover(BaseAgent):
         result = super().execute(task_description, ImprovementResult)
         return result.improved_content
 
-    def save_results(self, improved_content: str, output_path: Path) -> None:
-        """Save improved document to disk."""
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_text(improved_content)
-        
-    def save_improvement(self, original_content: str, improved_content: str, score: float, feedback: str, 
-                        output_dir: str | Path, doc_name: str, input_path: Optional[str] = None) -> None:
-        """Save improvement results in a comprehensive JSON file."""
+    def save(self, original_content: str, improved_content: str, score: float, feedback: str, 
+             output_dir: str | Path, doc_name: str, input_path: Optional[str] = None) -> None:
+        """Save improvement results in a comprehensive JSON file and markdown file."""
         output_dir = Path(output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
         
         # Create improvement data structure
         data = Box({

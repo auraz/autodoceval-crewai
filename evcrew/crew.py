@@ -91,7 +91,7 @@ class DocumentCrew:
         print(f" Score: {score:.1f}%")
 
         # Let evaluator handle saving
-        self.evaluator.save_evaluation(score, feedback, content, output_dir, doc_name, input_path)
+        self.evaluator.save(score, feedback, content, output_dir, doc_name, input_path)
 
     def evaluate_and_improve_file(self, input_path: str | Path, output_dir: str | Path, doc_name: str) -> None:
         """Evaluate and improve a document from file, saving all outputs."""
@@ -101,7 +101,7 @@ class DocumentCrew:
         print(f"   Final score: {score:.1f}%")
 
         # Let improver handle saving
-        self.improver.save_improvement(content, improved_content, score, feedback, output_dir, doc_name, input_path)
+        self.improver.save(content, improved_content, score, feedback, output_dir, doc_name, input_path)
 
     def auto_improve_file(
         self, input_path: str | Path, output_dir: str | Path, doc_name: str, max_iterations: int = 2, target_score: float = 85

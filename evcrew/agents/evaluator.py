@@ -43,7 +43,7 @@ class DocumentEvaluator(BaseAgent):
         result = super().execute(task_description, EvaluationResult)
         return result.score, result.feedback.strip()
 
-    def save_evaluation(self, score: float, feedback: str, content: str, output_dir: str | Path, doc_name: str, input_path: Optional[str] = None) -> None:
+    def save(self, score: float, feedback: str, content: str, output_dir: str | Path, doc_name: str, input_path: Optional[str] = None) -> None:
         """Save evaluation results in a comprehensive JSON file."""
         output_dir = Path(output_dir)
         
