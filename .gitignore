@@ -161,3 +161,4 @@ memory/
 *~
 .ruff_cache/
 venv/
+docs/memory/

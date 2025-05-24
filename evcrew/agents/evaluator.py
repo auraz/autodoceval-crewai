@@ -19,8 +19,4 @@ class DocumentEvaluator(BaseAgent):
         task_description = prompt_template.format(content=content)
         
         result = self.exec(task_description, EvaluationResult)
-        
-        memory_entry = f"Document: {content}\nScore: {result.score}\nFeedback: {result.feedback}"
-        self._save_memory(memory_entry)
-
         return result.score, result.feedback.strip()

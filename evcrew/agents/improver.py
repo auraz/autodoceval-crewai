@@ -19,8 +19,4 @@ class DocumentImprover(BaseAgent):
         task_description = prompt_template.format(content=content, feedback=feedback)
         
         result = self.exec(task_description, ImprovementResult)
-        
-        memory_entry = f"Original: {content}\nImproved: {result.improved_content}\nBased on feedback: {feedback}"
-        self._save_memory(memory_entry)
-
         return result.improved_content

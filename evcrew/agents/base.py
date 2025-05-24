@@ -1,6 +1,4 @@
-import json
 import os
-from datetime import datetime
 from pathlib import Path
 
 from crewai import Agent, Crew, Process, Task
@@ -32,8 +30,6 @@ class BaseAgent:
             verbose=False,
             llm_model="gpt-4",
         )
-        self.memory_dir = Path("docs") / "memory" / memory_id
-        self.memory_dir.mkdir(parents=True, exist_ok=True)
      
     def exec(self, task_desc: str, output_model: type[BaseModel] | None = None) -> BaseModel | str:
         """Execute task and return response using a crew with memory."""
@@ -63,11 +59,5 @@ class BaseAgent:
         if output_model:
             return result.tasks_output[0].pydantic
         return str(result.raw)
-    
-    def _save_memory(self, entry: str) -> None:
-        """Save memory entry to MD file."""
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = self.memory_dir / f"{timestamp}.md"
-        filename.write_text(entry)
 
 
