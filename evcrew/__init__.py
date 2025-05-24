@@ -7,6 +7,7 @@ from .agents import (  # re-export all public agent symbols
 )
 from .crew import DocumentCrew
 from .tracking import IterationTracker
+from .utils import read_file, write_file
 
 __all__ = [
     "BaseAgent",
@@ -16,4 +17,6 @@ __all__ = [
     "EvaluationResult",
     "ImprovementResult",
     "IterationTracker",
+    "read_file",
+    "write_file",
 ]

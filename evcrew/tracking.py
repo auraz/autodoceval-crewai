@@ -96,3 +96,13 @@ class IterationTracker:
         summary = self.get_summary()
         output_path = output_dir / f"{self.doc_info.doc_id}_tracking.json"
         output_path.write_text(json.dumps(summary.to_dict(), indent=2))
+
+    def save_metadata(self, output_dir: Path, status: str, target_score: float, max_iterations: int) -> None:
+        """Save comprehensive metadata including status and parameters."""
+        summary = self.get_summary()
+        summary.status = status
+        summary.target_score = target_score
+        summary.max_iterations = max_iterations
+
+        output_path = output_dir / f"{self.doc_info.doc_id}_auto_improve_metadata.json"
+        output_path.write_text(json.dumps(summary.to_dict(), indent=2))

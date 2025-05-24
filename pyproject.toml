@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "autodoceval-crewai"
@@ -31,10 +31,12 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "ruff>=0.2.0",
-    "build",
     "uv>=0.1.0",
 ]
 
+
+[tool.hatch.build.targets.wheel]
+packages = ["evcrew"]
 
 [tool.ruff]
 line-length = 170
@@ -61,5 +63,3 @@ quote-style = "double"
 indent-style = "space"
 line-ending = "auto"
 
-[tool.setuptools]
-packages = ["evcrew", "evcrew.agents"]
