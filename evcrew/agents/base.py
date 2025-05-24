@@ -35,4 +35,5 @@ class BaseAgent:
 
     def execute(self, task_desc: str, output_model: type[BaseModel]) -> BaseModel:
         """Execute a single task and return structured response."""
-        return Task(description=task_desc, expected_output="Structured output", agent=self.agent, output_pydantic=output_model).execute_sync().pydantic
+        task = Task(description=task_desc, expected_output="Structured output", agent=self.agent, output_pydantic=output_model)
+        return task.execute_sync().pydantic

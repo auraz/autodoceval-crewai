@@ -4,7 +4,6 @@ import json
 import uuid
 from datetime import datetime
 
-from evcrew.agents import DocumentEvaluator, DocumentImprover
 from evcrew import DocumentCrew
 
 # Utility functions
@@ -34,21 +33,18 @@ def save_auto_improve_metadata(output_path: str, doc_name: str, history: list, p
     metadata_path = Path(output_path).parent / f"{doc_name}_auto_improve_metadata.json"
     metadata_path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
 
-# Default configuration values
-DEFAULT_MAX_ITERATIONS = 3             # Auto-improve iteration cap
-DEFAULT_TARGET_SCORE = 85              # Desired quality score (0-100 scale)
+DEFAULT_MAX_ITERATIONS = 3  # Auto-improve iteration cap
+DEFAULT_TARGET_SCORE = 85  # Desired quality score (0-100 scale)
 
-# Get configuration from command line or use defaults
 MAX_ITERATIONS = config.get("max_iterations", DEFAULT_MAX_ITERATIONS)
 TARGET_SCORE = config.get("target_score", DEFAULT_TARGET_SCORE)
 
 INPUT_DIR = Path("docs") / "input"
 OUTPUT_DIR = Path("docs") / "output"
 
-# iterate through all *.md files in docs/input/
 DOCS = sorted(INPUT_DIR.glob("*.md"))
 
-def stem(path): return Path(path).stem  # helper to strip extension once
+def stem(path): return Path(path).stem
 
 
 rule all:
@@ -65,16 +61,13 @@ rule evaluate_doc:
     run:
         Path(output.score).parent.mkdir(parents=True, exist_ok=True)
 
-        # Read document
         doc_content = Path(input.doc).read_text()
 
-        # Create evaluator and evaluate
         print(f"📊 Evaluating {wildcards.name}...", end="", flush=True)
-        evaluator = DocumentEvaluator()
-        score, feedback = evaluator.execute(doc_content)
+        crew = DocumentCrew()
+        score, feedback = crew.evaluator.execute(doc_content)
         print(f" Score: {score:.1f}%")
 
-        # Save run data
         timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
         run_dir = OUTPUT_DIR / f"evaluate_{timestamp}"
         run_dir.mkdir(parents=True, exist_ok=True)
@@ -84,11 +77,9 @@ rule evaluate_doc:
         meta = {"run_type": "evaluate", "timestamp": timestamp, "score": score, "feedback": feedback}
         (run_dir / "metadata.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
 
-        # Write outputs
         Path(output.score).write_text(f"{score:.1f}%")
         Path(output.feedback).write_text(feedback)
         
-        # Save metadata in the same directory as outputs
         metadata = {
             "document": wildcards.name,
             "timestamp": timestamp,
@@ -113,14 +104,13 @@ rule auto_improve:
 
         print(f"🔄 Starting auto-improvement for {wildcards.name}...")
 
-        # Create agents
-        evaluator = DocumentEvaluator()
-        improver = DocumentImprover()
+        # Create crew
+        crew = DocumentCrew()
 
         # Read and evaluate original document
         print(f"  📊 Initial evaluation...", end="", flush=True)
         original_doc = read_file(doc_path)
-        original_score, original_feedback = evaluator.execute(original_doc)
+        original_score, original_feedback = crew.evaluator.execute(original_doc)
         print(f" Score: {original_score:.1f}%")
         # Track improvement history
         improvement_history = [{
@@ -148,7 +138,7 @@ rule auto_improve:
             print(f"  📝 Iteration {iteration}/{params.max_iter}...", end="", flush=True)
 
             # Improve document
-            improved_doc = improver.execute(current_doc, current_feedback)
+            improved_doc = crew.improver.execute(current_doc, current_feedback)
 
             # Save improved document
             improved_path = OUTPUT_DIR / wildcards.name / f"{wildcards.name}_iter{iteration}.md"
@@ -156,7 +146,7 @@ rule auto_improve:
             final_path = str(improved_path)
 
             # Evaluate improved document
-            score, feedback = evaluator.execute(improved_doc)
+            score, feedback = crew.evaluator.execute(improved_doc)
 
             improvement = score - last_score
             

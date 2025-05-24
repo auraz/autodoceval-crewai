@@ -5,7 +5,7 @@ from .agents import (  # re-export all public agent symbols
     EvaluationResult,
     ImprovementResult,
 )
-from .crew import DocumentCrew, evaluate_document, improve_document
+from .crew import DocumentCrew
 
 __all__ = [
     "BaseAgent",
@@ -14,6 +14,4 @@ __all__ = [
     "DocumentImprover",
     "EvaluationResult",
     "ImprovementResult",
-    "evaluate_document",
-    "improve_document",
 ]

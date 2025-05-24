@@ -57,17 +57,23 @@ Place your markdown documents in `docs/input/` and the workflow will:
 For programmatic usage:
 
 ```python
-from evcrew import evaluate_document, improve_document
+from evcrew import DocumentCrew
+
+# Create crew instance
+crew = DocumentCrew()
 
 # Evaluate a document
 with open("docs/example.md", "r") as f:
     content = f.read()
-score, feedback = evaluate_document(content)
+score, feedback = crew.evaluator.execute(content)
 print(f"Score: {score:.1f}%")
 print(f"Feedback: {feedback}")
 
 # Improve a document
-improved_content = improve_document(content, feedback)
+improved_content = crew.improver.execute(content, feedback)
+
+# Or use the combined workflow
+improved_content, score, feedback = crew.evaluate_and_improve(content)
 
 # Save the improved version
 with open("docs/example_improved.md", "w") as f:
@@ -127,14 +133,16 @@ autodoceval-crewai/
 │   ├── agents/          # Agent implementations
 │   │   ├── base.py      # Base agent class
 │   │   ├── evaluator.py # Document evaluator
-│   │   └── improver.py  # Document improver
-│   ├── prompts/         # Agent prompt templates
-│   │   ├── evaluator.md # Evaluation prompt
-│   │   └── improver.md  # Improvement prompt
+│   │   ├── improver.py  # Document improver
+│   │   └── prompts/     # Agent prompt templates
+│   │       ├── evaluator.md     # Evaluation prompt
+│   │       ├── improver.md      # Improvement prompt
+│   │       └── improver_task.md # Improvement task prompt
 │   ├── tests/           # Unit tests
-│   │   └── test_evaluator.py
+│   │   ├── test_crew.py     # Crew tests
+│   │   └── test_evaluator.py # Evaluator tests
 │   ├── __init__.py      # Package exports
-│   └── core.py          # Simple API wrappers
+│   └── crew.py          # DocumentCrew workflow class
 ├── docs/                # Document storage
 │   ├── input/           # Input documents
 │   └── output/          # Evaluation results
