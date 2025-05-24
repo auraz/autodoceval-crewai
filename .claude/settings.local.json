@@ -22,5 +22,9 @@
       "Bash(git commit:*)"
     ],
     "deny": []
-  }
+  },
+  "auto_approve": {
+	"git",
+	"npm"
+}
 }

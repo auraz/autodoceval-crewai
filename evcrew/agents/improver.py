@@ -10,6 +10,24 @@ class DocumentImprover(BaseAgent):
             goal="Transform documents into clear, comprehensive, and well-structured content",
             backstory="You are a senior technical writer who specializes in improving documentation",
         )
+    
+    def create_task(self, content: str, feedback: str = None):
+        """Create improvement task for the given content."""
+        from crewai import Task
+        
+        prompt_path = self.prompts_dir / "improver.md"
+        # If feedback is provided, use it; otherwise it will come from context
+        if feedback:
+            description = prompt_path.read_text().format(content=content, feedback=feedback)
+        else:
+            description = f"Improve the document based on the evaluation feedback:\n\n{content}"
+        
+        return Task(
+            description=description,
+            expected_output="Improved version of the document",
+            agent=self.agent,
+            output_pydantic=ImprovementResult
+        )
 
     def execute(self, content: str, feedback: str) -> str:
         """Execute document improvement based on feedback."""

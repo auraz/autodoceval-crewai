@@ -20,30 +20,12 @@ class DocumentCrew:
         Returns:
             tuple: (improved_content, score, feedback)
         """
-        # Create evaluation task
-        eval_task = Task(
-            description=f"""Evaluate the following document for clarity and quality:
-
-{content}
-
-Provide a numeric score (0-100) and detailed feedback about the document's strengths and weaknesses.""",
-            expected_output="Document evaluation with score and feedback",
-            agent=self.evaluator.agent,
-            output_pydantic=EvaluationResult
-        )
+        # Create tasks using agent methods
+        eval_task = self.evaluator.create_task(content)
+        improve_task = self.improver.create_task(content)  # Feedback will come from context
         
-        # Create improvement task that uses evaluation context
-        improve_task = Task(
-            description=f"""Based on the evaluation feedback from the previous task, improve the following document:
-
-{content}
-
-Use the score and feedback from the evaluation to guide your improvements.""",
-            expected_output="Improved version of the document",
-            agent=self.improver.agent,
-            output_pydantic=ImprovementResult,
-            context=[eval_task]  # This makes eval results available to improve task
-        )
+        # Set task dependencies - improver needs evaluator's output
+        improve_task.context = [eval_task]
         
         # Create crew with both agents working together
         crew = Crew(
