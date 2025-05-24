@@ -59,36 +59,15 @@ rule evaluate_doc:
         score    = str(OUTPUT_DIR) + "/{name}/{name}_score.txt",
         feedback = str(OUTPUT_DIR) + "/{name}/{name}_feedback.txt"
     run:
-        Path(output.score).parent.mkdir(parents=True, exist_ok=True)
-
         doc_content = Path(input.doc).read_text()
-
+        output_dir = Path(output.score).parent
+        
         print(f"📊 Evaluating {wildcards.name}...", end="", flush=True)
         crew = DocumentCrew()
         score, feedback = crew.evaluator.execute(doc_content)
         print(f" Score: {score:.1f}%")
-
-        timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
-        run_dir = OUTPUT_DIR / f"evaluate_{timestamp}"
-        run_dir.mkdir(parents=True, exist_ok=True)
-
-        (run_dir / "input.txt").write_text(doc_content, encoding="utf-8")
-        (run_dir / "output.txt").write_text(f"Score: {score}\nFeedback: {feedback}", encoding="utf-8")
-        meta = {"run_type": "evaluate", "timestamp": timestamp, "score": score, "feedback": feedback}
-        (run_dir / "metadata.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
-
-        Path(output.score).write_text(f"{score:.1f}%")
-        Path(output.feedback).write_text(feedback)
         
-        metadata = {
-            "document": wildcards.name,
-            "timestamp": timestamp,
-            "score": score,
-            "feedback": feedback,
-            "input_file": str(input.doc)
-        }
-        metadata_path = Path(output.score).parent / f"{wildcards.name}_metadata.json"
-        metadata_path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+        crew.evaluator.save_results(score, feedback, output_dir, wildcards.name, doc_content)
 
 rule auto_improve:
     input:
@@ -99,86 +78,25 @@ rule auto_improve:
         max_iter      = MAX_ITERATIONS,
         target_score  = TARGET_SCORE
     run:
-        Path(output.final).parent.mkdir(parents=True, exist_ok=True)
-        doc_path = str(input.doc)
-
+        output_dir = Path(output.final).parent
+        doc_content = read_file(str(input.doc))
+        
         print(f"🔄 Starting auto-improvement for {wildcards.name}...")
-
-        # Create crew
+        
         crew = DocumentCrew()
-
-        # Read and evaluate original document
-        print(f"  📊 Initial evaluation...", end="", flush=True)
-        original_doc = read_file(doc_path)
-        original_score, original_feedback = crew.evaluator.execute(original_doc)
-        print(f" Score: {original_score:.1f}%")
-        # Track improvement history
-        improvement_history = [{
-            "iteration": 0,
-            "score": original_score,
-            "feedback": original_feedback,
-            "file": doc_path
-        }]
-
-        current_doc = original_doc
-        current_feedback = original_feedback
-        last_score = original_score
-        iteration = 0
-        final_path = doc_path
-
-        # Skip improvement if already at target
-        if original_score >= params.target_score:
-            write_file(output.final, original_doc)
-            # Save metadata
-            save_auto_improve_metadata(output.final, wildcards.name, improvement_history, params, "target_met_original")
-            return
-
-        while iteration < params.max_iter:
-            iteration += 1
-            print(f"  📝 Iteration {iteration}/{params.max_iter}...", end="", flush=True)
-
-            # Improve document
-            improved_doc = crew.improver.execute(current_doc, current_feedback)
-
-            # Save improved document
-            improved_path = OUTPUT_DIR / wildcards.name / f"{wildcards.name}_iter{iteration}.md"
-            write_file(str(improved_path), improved_doc)
-            final_path = str(improved_path)
-
-            # Evaluate improved document
-            score, feedback = crew.evaluator.execute(improved_doc)
-
-            improvement = score - last_score
-            
-            # Add to history
-            improvement_history.append({
-                "iteration": iteration,
-                "score": score,
-                "feedback": feedback,
-                "improvement": improvement,
-                "file": str(improved_path)
-            })
-            
-            print(f" Score: {score:.1f}% ({improvement:+.1f}%)")
-
-            if score >= params.target_score:
-                break
-
-            current_doc = improved_doc
-            current_feedback = feedback
-            last_score = score
-
-        # Determine completion status
-        if score >= params.target_score:
+        final_doc, history = crew.auto_improve(doc_content, output_dir, wildcards.name, params.max_iter, params.target_score)
+        
+        # Save final document
+        write_file(output.final, final_doc)
+        
+        # Determine status
+        final_score = history[-1]["score"]
+        if final_score >= params.target_score:
             status = "target_reached"
-            print(f"✅ Target score reached! Final score: {score:.1f}%")
+            print(f"✅ Target score reached! Final score: {final_score:.1f}%")
         else:
             status = "max_iterations_reached"
-            print(f"⚠️  Max iterations reached. Final score: {score:.1f}%")
-
-        # Copy final result
-        from shutil import copyfile
-        copyfile(final_path, output.final)
-        
-        # Save comprehensive metadata
-        save_auto_improve_metadata(output.final, wildcards.name, improvement_history, params, status)
+            print(f"⚠️  Max iterations reached. Final score: {final_score:.1f}%")
+            
+        # Save metadata
+        save_auto_improve_metadata(output.final, wildcards.name, history, params, status)

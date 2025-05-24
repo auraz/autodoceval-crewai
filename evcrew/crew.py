@@ -1,5 +1,7 @@
 """Crew-based workflows for document evaluation and improvement."""
 
+from pathlib import Path
+
 from crewai import Crew, Process
 
 from .agents import DocumentEvaluator, DocumentImprover
@@ -32,3 +34,48 @@ class DocumentCrew:
         improve_result = result.tasks_output[1].pydantic
 
         return improve_result.improved_content, eval_result.score, eval_result.feedback
+
+    def auto_improve(self, content: str, output_dir: Path, doc_name: str, max_iterations: int = 3, target_score: float = 85) -> tuple[str, list]:
+        """Auto-improve document until target score or max iterations reached."""
+        improvement_history = []
+
+        # Initial evaluation
+        print(f"  📊 Initial evaluation...", end="", flush=True)
+        score, feedback = self.evaluator.execute(content)
+        print(f" Score: {score:.1f}%")
+        improvement_history.append({"iteration": 0, "score": score, "feedback": feedback})
+
+        # Save initial evaluation
+        self.evaluator.save_results(score, feedback, output_dir, f"{doc_name}_initial", content)
+
+        if score >= target_score:
+            return content, improvement_history
+
+        current_doc = content
+        current_feedback = feedback
+
+        for iteration in range(1, max_iterations + 1):
+            print(f"  📝 Iteration {iteration}/{max_iterations}...", end="", flush=True)
+
+            # Improve document
+            improved_doc = self.improver.execute(current_doc, current_feedback)
+
+            # Save iteration
+            iter_path = output_dir / f"{doc_name}_iter{iteration}.md"
+            self.improver.save_result(improved_doc, iter_path)
+
+            # Evaluate improved document
+            score, feedback = self.evaluator.execute(improved_doc)
+            improvement = score - improvement_history[-1]["score"]
+
+            improvement_history.append({"iteration": iteration, "score": score, "feedback": feedback, "improvement": improvement, "file": str(iter_path)})
+
+            print(f" Score: {score:.1f}% ({improvement:+.1f}%)")
+
+            if score >= target_score:
+                break
+
+            current_doc = improved_doc
+            current_feedback = feedback
+
+        return current_doc, improvement_history

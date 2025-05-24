@@ -75,6 +75,11 @@ improved_content = crew.improver.execute(content, feedback)
 # Or use the combined workflow
 improved_content, score, feedback = crew.evaluate_and_improve(content)
 
+# Or use auto-improvement
+from pathlib import Path
+output_dir = Path("docs/output/example")
+final_doc, history = crew.auto_improve(content, output_dir, "example", max_iterations=5, target_score=90)
+
 # Save the improved version
 with open("docs/example_improved.md", "w") as f:
     f.write(improved_content)
@@ -101,9 +106,13 @@ AutoDocEval uses CrewAI agents to evaluate and improve documentation:
 The system uses specialized agents for document processing:
 
 - **DocumentEvaluator**: Analyzes document clarity and provides structured feedback
+  - Includes `save_results()` method for persisting evaluation outputs
 - **DocumentImprover**: Transforms documents based on evaluation feedback
-- Agents use direct task execution for optimal performance
-- Each agent has a specific role, goal, and backstory for consistent results
+  - Includes `save_result()` method for saving improved documents
+- **DocumentCrew**: Orchestrates multi-agent workflows
+  - `evaluate_and_improve()`: Combined evaluation and improvement with memory
+  - `auto_improve()`: Iterative improvement until target score reached
+- Agents handle their own file I/O for better encapsulation
 
 ### Workflow System
 

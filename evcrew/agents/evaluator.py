@@ -1,3 +1,7 @@
+import json
+from datetime import datetime
+from pathlib import Path
+
 from .base import BaseAgent, EvaluationResult
 
 
@@ -28,3 +32,18 @@ class DocumentEvaluator(BaseAgent):
 
         result = super().execute(task_description, EvaluationResult)
         return result.score, result.feedback.strip()
+
+    def save_results(self, score: float, feedback: str, output_dir: Path, doc_name: str, input_content: str = None) -> None:
+        """Save evaluation results to disk with metadata."""
+        output_dir.mkdir(parents=True, exist_ok=True)
+        timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+
+        # Save score and feedback
+        (output_dir / f"{doc_name}_score.txt").write_text(f"{score:.1f}%")
+        (output_dir / f"{doc_name}_feedback.txt").write_text(feedback)
+
+        # Save metadata
+        metadata = {"document": doc_name, "timestamp": timestamp, "score": score, "feedback": feedback}
+        if input_content:
+            metadata["input_length"] = len(input_content)
+        (output_dir / f"{doc_name}_metadata.json").write_text(json.dumps(metadata, indent=2))
