@@ -31,17 +31,14 @@ class BaseAgent:
             llm_model="gpt-4",
         )
      
-    def exec(self, task_desc: str, output_model: type[BaseModel] | None = None) -> BaseModel | str:
-        """Execute task and return response using a crew with memory."""
-        if output_model:
-            task = Task(
-                description=task_desc, 
-                expected_output="Structured output",
-                agent=self.agent,
-                output_pydantic=output_model
-            )
-        else:
-            task = Task(description=task_desc, expected_output="", agent=self.agent)
+    def exec(self, task_desc: str, output_model: type[BaseModel]) -> BaseModel:
+        """Execute task and return structured response using a crew with memory."""
+        task = Task(
+            description=task_desc, 
+            expected_output="Structured output",
+            agent=self.agent,
+            output_pydantic=output_model
+        )
         
         crew = Crew(
             agents=[self.agent], 
@@ -56,8 +53,6 @@ class BaseAgent:
         )
         result = crew.kickoff()
         
-        if output_model:
-            return result.tasks_output[0].pydantic
-        return str(result.raw)
+        return result.tasks_output[0].pydantic
 
 
