@@ -11,16 +11,16 @@ class DocumentImprover(BaseAgent):
             backstory="You are a senior technical writer who specializes in improving documentation",
         )
     
-    def create_task(self, content: str, feedback: str = None):
+    def create_task(self, content: str):
         """Create improvement task for the given content."""
         from crewai import Task
         
-        prompt_path = self.prompts_dir / "improver.md"
-        # If feedback is provided, use it; otherwise it will come from context
-        if feedback:
-            description = prompt_path.read_text().format(content=content, feedback=feedback)
-        else:
-            description = f"Improve the document based on the evaluation feedback:\n\n{content}"
+        # In crew workflow, feedback comes from evaluation task context
+        description = f"""Based on the evaluation feedback from the previous task, improve the following document:
+
+{content}
+
+Use the score and feedback from the evaluation to guide your improvements."""
         
         return Task(
             description=description,
