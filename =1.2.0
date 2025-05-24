@@ -1,9 +1,0 @@
-Collecting executing
-  Using cached executing-2.2.0-py2.py3-none-any.whl.metadata (8.9 kB)
-Using cached executing-2.2.0-py2.py3-none-any.whl (26 kB)
-Installing collected packages: executing
-  Attempting uninstall: executing
-    Found existing installation: executing 2.2.0
-    Uninstalling executing-2.2.0:
-      Successfully uninstalled executing-2.2.0
-Successfully installed executing-2.2.0

@@ -1,6 +1,12 @@
+import json
+from datetime import datetime
+from pathlib import Path
 from typing import Optional
 
+from box import Box
 from crewai import Task
+
+from evcrew.utils import write_file
 
 from .base import BaseAgent, EvaluationResult
 
@@ -37,8 +43,23 @@ class DocumentEvaluator(BaseAgent):
         result = super().execute(task_description, EvaluationResult)
         return result.score, result.feedback.strip()
 
-    def save_results(self, score: float, feedback: str, output_dir, doc_name: str, input_content: Optional[str] = None) -> None:
-        """Save evaluation results using base class method."""
-        results = {"score": f"{score:.1f}%", "feedback": feedback}
-        metadata = {"input_length": len(input_content)} if input_content else {}
-        super().save_results(results, output_dir, doc_name, **metadata)
+    def save_evaluation(self, score: float, feedback: str, content: str, output_dir: str | Path, doc_name: str, input_path: Optional[str] = None) -> None:
+        """Save evaluation results in a comprehensive JSON file."""
+        output_dir = Path(output_dir)
+        
+        # Create evaluation data structure
+        data = Box({
+            "document": doc_name,
+            "input_path": str(input_path) if input_path else None,
+            "timestamp": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "evaluation": {
+                "score": score,
+                "feedback": feedback,
+                "word_count": len(content.split())
+            },
+            "content": content
+        })
+        
+        # Save as JSON
+        output_path = output_dir / f"{doc_name}_evaluation.json"
+        write_file(output_path, json.dumps(data.to_dict(), indent=2))

@@ -1,6 +1,12 @@
+import json
+from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
+from box import Box
 from crewai import Task
+
+from evcrew.utils import write_file
 
 from .base import BaseAgent, ImprovementResult
 
@@ -37,3 +43,33 @@ class DocumentImprover(BaseAgent):
         """Save improved document to disk."""
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(improved_content)
+        
+    def save_improvement(self, original_content: str, improved_content: str, score: float, feedback: str, 
+                        output_dir: str | Path, doc_name: str, input_path: Optional[str] = None) -> None:
+        """Save improvement results in a comprehensive JSON file."""
+        output_dir = Path(output_dir)
+        
+        # Create improvement data structure
+        data = Box({
+            "document": doc_name,
+            "input_path": str(input_path) if input_path else None,
+            "timestamp": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "method": "evaluate_and_improve",
+            "original": {
+                "content": original_content,
+                "word_count": len(original_content.split())
+            },
+            "improved": {
+                "score": score,
+                "feedback": feedback,
+                "word_count": len(improved_content.split()),
+                "content": improved_content
+            }
+        })
+        
+        # Save comprehensive results
+        output_path = output_dir / f"{doc_name}_improved.json"
+        write_file(output_path, json.dumps(data.to_dict(), indent=2))
+        
+        # Save final improved version as .md file
+        write_file(output_dir / f"{doc_name}_improved.md", improved_content)

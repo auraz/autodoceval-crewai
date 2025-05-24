@@ -172,7 +172,9 @@ autodoceval-crewai/
 │   │   ├── test_crew.py     # Crew tests
 │   │   └── test_evaluator.py # Evaluator tests
 │   ├── __init__.py      # Package exports
-│   └── crew.py          # DocumentCrew workflow class
+│   ├── crew.py          # DocumentCrew workflow class
+│   ├── tracking.py      # Iteration tracking system
+│   └── utils.py         # File operation utilities
 ├── docs/                # Document storage
 │   ├── input/           # Input documents
 │   └── output/          # Evaluation results

@@ -45,6 +45,7 @@ class IterationResult:
     metrics: QualityMetrics
     improved_path: Optional[str] = None
     improvement_delta: Optional[float] = None
+    content: Optional[str] = None  # Store the actual content
 
 
 class IterationTracker:
@@ -56,15 +57,15 @@ class IterationTracker:
         self.iterations: list[IterationResult] = []
         self.start_time = datetime.utcnow()
 
-    def add_iteration(self, iteration: int, score: float, feedback: str, improved_path: Optional[str] = None) -> None:
+    def add_iteration(self, iteration: int, score: float, feedback: str, improved_path: Optional[str] = None, content: Optional[str] = None) -> None:
         """Add iteration result to tracking."""
-        metrics = QualityMetrics(score=score, feedback=feedback)
+        metrics = QualityMetrics(score=score, feedback=feedback, word_count=len(content.split()) if content else 0)
         improvement_delta = None
 
         if self.iterations and iteration > 0:
             improvement_delta = score - self.iterations[-1].metrics.score
 
-        result = IterationResult(iteration=iteration, metrics=metrics, improved_path=improved_path, improvement_delta=improvement_delta)
+        result = IterationResult(iteration=iteration, metrics=metrics, improved_path=improved_path, improvement_delta=improvement_delta, content=content)
         self.iterations.append(result)
 
     def get_summary(self) -> Box:
@@ -106,3 +107,39 @@ class IterationTracker:
 
         output_path = output_dir / f"{self.doc_info.doc_id}_auto_improve_metadata.json"
         output_path.write_text(json.dumps(summary.to_dict(), indent=2))
+
+    def save_complete_results(self, output_dir: Path, status: str, target_score: float, max_iterations: int) -> None:
+        """Save all results including content in a single comprehensive JSON file."""
+        data = Box({
+            "launch_id": self.launch_id,
+            "document": self.doc_info.doc_id,
+            "input_path": self.doc_info.path,
+            "timestamp": self.start_time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "duration_seconds": (datetime.utcnow() - self.start_time).total_seconds(),
+            "status": status,
+            "parameters": {"target_score": target_score, "max_iterations": max_iterations},
+            "summary": {
+                "iterations_completed": len(self.iterations) - 1,  # Exclude initial
+                "initial_score": self.iterations[0].metrics.score if self.iterations else 0,
+                "final_score": self.iterations[-1].metrics.score if self.iterations else 0,
+                "total_improvement": (self.iterations[-1].metrics.score - self.iterations[0].metrics.score) if len(self.iterations) > 1 else 0,
+            },
+            "iterations": []
+        })
+        
+        # Add all iteration data including content
+        for result in self.iterations:
+            iter_data = {
+                "iteration": result.iteration,
+                "type": "initial_evaluation" if result.iteration == 0 else f"improvement_{result.iteration}",
+                "score": result.metrics.score,
+                "feedback": result.metrics.feedback,
+                "word_count": result.metrics.word_count,
+                "improvement_delta": result.improvement_delta,
+                "content": result.content
+            }
+            data.iterations.append(iter_data)
+        
+        # Save comprehensive results
+        output_path = output_dir / f"{self.doc_info.doc_id}_results.json"
+        output_path.write_text(json.dumps(data.to_dict(), indent=2))
