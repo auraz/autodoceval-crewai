@@ -38,23 +38,29 @@ All document processing is handled through Snakemake workflows:
 snakemake --cores 1 all
 
 # Just evaluate all documents without improvement
-snakemake --cores 1 evaluate
+snakemake --cores 1 evaluate_all
 
-# Evaluate and improve in one step (uses memory for context)
-snakemake --cores 1 docs/output/myfile/myfile_improved.md
+# Evaluate single document
+snakemake --cores 1 evaluate_one name=myfile
 
-# Run auto-improve with custom settings
-snakemake --cores 1 all --config max_iterations=5 target_score=80
+# Evaluate and improve all documents
+snakemake --cores 1 evaluate_and_improve_all
+
+# Evaluate and improve single document
+snakemake --cores 1 evaluate_and_improve_one name=myfile
+
+# Auto-improve single document from custom path
+snakemake --cores 1 auto_improve_one doc=path/to/doc.md name=mydoc
 
 # Clean outputs
 snakemake --cores 1 clean
 ```
 
 Place your markdown documents in `docs/input/` and the workflow will:
-- **evaluate rule**: Evaluate documents and save scores/feedback
-- **evaluate_and_improve rule**: Evaluate and improve in one workflow (with memory context)
-- **auto_improve rule**: Iteratively improve until target score reached
-- Outputs saved to `docs/output/{name}/` with appropriate suffixes
+- **evaluate_all/evaluate_one**: Evaluate documents and save scores/feedback
+- **evaluate_and_improve_all/evaluate_and_improve_one**: Evaluate and improve in one workflow
+- **auto_improve_all/auto_improve_one**: Iteratively improve until target score reached
+- Outputs saved to `docs/output/{name}/` as JSON files with all metadata and content
 
 ### Python API
 
@@ -63,30 +69,25 @@ For programmatic usage:
 ```python
 from evcrew import DocumentCrew
 
-# Create crew instance
+# Create crew instance (default target score = 85)
 crew = DocumentCrew()
+# Or with custom target score
+crew = DocumentCrew(target_score=90)
 
 # Evaluate a document
-with open("docs/example.md", "r") as f:
-    content = f.read()
-score, feedback = crew.evaluator.execute(content)
-print(f"Score: {score:.1f}%")
-print(f"Feedback: {feedback}")
+score, feedback = crew.evaluate_one("Document content here...")
+print(f"Score: {score:.0f}%, Feedback: {feedback}")
 
 # Improve a document
-improved_content = crew.improver.execute(content, feedback)
+improved_content = crew.improve_one("Document content...", "Feedback about issues...")
 
-# Or use the combined workflow
-improved_content, score, feedback = crew.evaluate_and_improve(content)
+# Evaluate and improve in one workflow
+improved_content, score, feedback = crew.evaluate_and_improve_one("Document content...")
 
-# Or use auto-improvement
+# Auto-improve with iteration tracking
 from pathlib import Path
-output_dir = Path("docs/output/example")
-final_doc, history = crew.auto_improve(content, output_dir, "example", max_iterations=5, target_score=90)
-
-# Save the improved version
-with open("docs/example_improved.md", "w") as f:
-    f.write(improved_content)
+iterator = crew.auto_improve_one("Document content...", "docs/output/example", max_iterations=3)
+print(f"Final score: {iterator.final_score:.0f}%, Total improvement: {iterator.total_improvement:.0f}%")
 ```
 
 ## Architecture
@@ -131,8 +132,11 @@ The system uses specialized agents for document processing:
   - Implements `create_task()` for improvement tasks
   - `save_results()`: Saves improved documents to disk
 - **DocumentCrew**: Orchestrates multi-agent workflows
-  - `evaluate_and_improve()`: Combined evaluation and improvement with memory
-  - `auto_improve()`: Iterative improvement until target score reached
+  - `evaluate_one()`: Evaluate single document
+  - `improve_one()`: Improve single document with feedback
+  - `evaluate_and_improve_one()`: Combined evaluation and improvement
+  - `auto_improve_one()`: Iterative improvement until target score reached
+- **DocumentIterator**: Handles iteration state and progress tracking
 - Agents handle their own file I/O for better encapsulation
 
 ### Workflow System
@@ -145,15 +149,17 @@ The Snakemake workflow handles:
 
 ## Configuration
 
-Default values are set in the Snakefile:
-- `max_iterations`: 2 (maximum improvement iterations)
-- `target_score`: 85 (target quality score, 0-100 scale)
+Default values:
+- `max_iterations`: 2 (set in Snakefile, can be overridden)
+- `target_score`: 85 (property of DocumentCrew class)
 
-Override via command line:
+Override max_iterations via command line:
 
 ```bash
-snakemake --cores 1 all --config max_iterations=5 target_score=90
+snakemake --cores 1 all --config max_iterations=5
 ```
+
+To use a different target score, instantiate DocumentCrew with desired value in Python code.
 
 ## Project Structure
 

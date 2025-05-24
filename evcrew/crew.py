@@ -27,15 +27,15 @@ class DocumentCrew:
             verbose=False,
         )
 
-    def evaluate(self, content: str) -> tuple[float, str]:
+    def evaluate_one(self, content: str) -> tuple[float, str]:
         """Evaluate a document and return (score, feedback)."""
         return self.evaluator.execute(content)
     
-    def improve(self, content: str, feedback: str) -> str:
+    def improve_one(self, content: str, feedback: str) -> str:
         """Improve a document based on feedback and return improved content."""
         return self.improver.execute(content, feedback)
 
-    def evaluate_and_improve(self, content: str, doc_name: str = "document") -> tuple[str, float, str]:
+    def evaluate_and_improve_one(self, content: str, doc_name: str = "document") -> tuple[str, float, str]:
         """Evaluate and improve a document in one workflow returning (improved_content, score, feedback)."""
         eval_task = self.evaluator.create_task(content, doc_name=doc_name)
         improve_task = self.improver.create_task(content, doc_name=doc_name)
@@ -49,8 +49,8 @@ class DocumentCrew:
 
         return improve_result.improved_content, eval_result.score, eval_result.feedback
 
-    def auto_improve(self, content: str, output_dir: Path | str, doc_name: str = "document", doc_path: str = "unknown", 
-                    max_iterations: int = 2) -> DocumentIterator:
+    def auto_improve_one(self, content: str, output_dir: Path | str, doc_name: str = "document", doc_path: str = "unknown", 
+                        max_iterations: int = 2) -> DocumentIterator:
         """Auto-improve document until target score or max iterations reached, returns DocumentIterator with all data."""
         iterator = DocumentIterator(self.evaluator, self.improver, doc_name, doc_path, content, self.target_score, max_iterations)
         
