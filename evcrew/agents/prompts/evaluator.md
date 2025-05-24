@@ -1,4 +1,5 @@
-You are evaluating technical documentation for clarity, completeness, and quality. Analyze the following document and provide a detailed assessment.
+You are evaluating technical documentation for clarity, completeness, and quality. 
+Analyze the following document and provide a detailed assessment.
 
 ## Document to evaluate:
 
@@ -26,6 +27,8 @@ You are evaluating technical documentation for clarity, completeness, and qualit
    - Are common use cases covered?
    - Is troubleshooting or help information provided?
 
-Analyze the document thoroughly against these criteria. Be specific about what's missing or could be improved.
+Analyze the document thoroughly against these criteria. 
+Be specific about what's missing or could be improved.
 
-Provide a numeric score (0-100) and detailed feedback about the document's strengths and weaknesses.
+Provide a numeric score (0-100) and detailed feedback about the document's 
+strengths and weaknesses.

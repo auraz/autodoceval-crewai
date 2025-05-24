@@ -51,13 +51,9 @@ class BaseAgent(ABC):
         """Save results to disk with metadata."""
         output_dir.mkdir(parents=True, exist_ok=True)
         timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
-
-        # Save individual result files
         for key, value in results.items():
             file_path = output_dir / f"{doc_name}_{key}.txt"
             file_path.write_text(str(value))
-
-        # Save metadata
         meta = {"document": doc_name, "timestamp": timestamp, **results, **metadata}
         metadata_path = output_dir / f"{doc_name}_metadata.json"
         metadata_path.write_text(json.dumps(meta, indent=2))

@@ -3,7 +3,8 @@
     "allow": [
       "Bash(ruff check:*)",
       "Bash(ruff format:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(find:*)"
     ],
     "deny": []
   }

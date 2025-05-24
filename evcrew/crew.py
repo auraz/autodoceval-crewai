@@ -38,14 +38,10 @@ class DocumentCrew:
     def auto_improve(self, content: str, output_dir: Path, doc_name: str, max_iterations: int = 3, target_score: float = 85) -> tuple[str, list]:
         """Auto-improve document until target score or max iterations reached."""
         improvement_history = []
-
-        # Initial evaluation
         print("  📊 Initial evaluation...", end="", flush=True)
         score, feedback = self.evaluator.execute(content)
         print(f" Score: {score:.1f}%")
         improvement_history.append({"iteration": 0, "score": score, "feedback": feedback})
-
-        # Save initial evaluation
         self.evaluator.save_evaluation(score, feedback, output_dir, f"{doc_name}_initial", content)
 
         if score >= target_score:
@@ -56,15 +52,9 @@ class DocumentCrew:
 
         for iteration in range(1, max_iterations + 1):
             print(f"  📝 Iteration {iteration}/{max_iterations}...", end="", flush=True)
-
-            # Improve document
             improved_doc = self.improver.execute(current_doc, current_feedback)
-
-            # Save iteration
             iter_path = output_dir / f"{doc_name}_iter{iteration}.md"
             self.improver.save_improvement(improved_doc, iter_path)
-
-            # Evaluate improved document
             score, feedback = self.evaluator.execute(improved_doc)
             improvement = score - improvement_history[-1]["score"]
 

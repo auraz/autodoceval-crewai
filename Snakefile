@@ -3,6 +3,7 @@ from pathlib import Path
 import json
 import uuid
 from datetime import datetime
+from typing import Any
 
 from evcrew import DocumentCrew
 
@@ -17,7 +18,7 @@ def write_file(file_path: str, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding="utf-8")
 
-def save_auto_improve_metadata(output_path: str, doc_name: str, history: list, params, status: str) -> None:
+def save_auto_improve_metadata(output_path: str, doc_name: str, history: list[dict], params: Any, status: str) -> None:
     """Save comprehensive metadata for auto-improve runs."""
     metadata = {
         "document": doc_name,
@@ -44,7 +45,7 @@ OUTPUT_DIR = Path("docs") / "output"
 
 DOCS = sorted(INPUT_DIR.glob("*.md"))
 
-def stem(path): return Path(path).stem
+def stem(path: Path) -> str: return Path(path).stem
 
 
 rule all:

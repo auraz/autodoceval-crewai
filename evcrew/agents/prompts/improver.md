@@ -6,4 +6,5 @@ Document:
 Feedback:
 {feedback}
 
-Generate an improved version of the document that addresses all the feedback points while maintaining the original structure and intent.
+Generate an improved version of the document that addresses all the feedback points 
+while maintaining the original structure and intent.
