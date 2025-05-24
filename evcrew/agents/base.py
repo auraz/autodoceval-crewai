@@ -57,9 +57,36 @@ def parse_eval(response: str) -> tuple[float, str]:
 
 def parse_improve(response: str) -> str:
     """Parse improver JSON response."""
+    # Find JSON content in the response
     lines = response.strip().split('\n')
-    json_line = next((line for line in lines if line.strip().startswith('{')), None)
-    if not json_line:
+    json_start = -1
+    for i, line in enumerate(lines):
+        if line.strip().startswith('{'):
+            json_start = i
+            break
+    
+    if json_start == -1:
         raise ValueError("No JSON found in response")
-    data = json.loads(json_line.strip())
+    
+    # Extract JSON content (could be multi-line)
+    json_content = '\n'.join(lines[json_start:])
+    
+    # Find the end of JSON by counting braces
+    brace_count = 0
+    json_end = -1
+    for i, char in enumerate(json_content):
+        if char == '{':
+            brace_count += 1
+        elif char == '}':
+            brace_count -= 1
+            if brace_count == 0:
+                json_end = i + 1
+                break
+    
+    if json_end == -1:
+        raise ValueError("Invalid JSON structure in response")
+    
+    # Parse the complete JSON
+    json_str = json_content[:json_end]
+    data = json.loads(json_str)
     return str(data["improved_content"])
