@@ -102,7 +102,8 @@ The system includes a comprehensive iteration tracking system that captures:
 - File paths for each improved version
 - Total duration and iteration count
 
-Tracking data is saved as JSON files for analysis and monitoring.
+Tracking data is saved as JSON files for analysis and monitoring. The system uses 
+python-box for cleaner dictionary access with dot notation.
 
 ### Agents
 

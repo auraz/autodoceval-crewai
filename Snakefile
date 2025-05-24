@@ -5,6 +5,8 @@ import uuid
 from datetime import datetime
 from typing import Any
 
+from box import Box
+
 from evcrew import DocumentCrew, IterationTracker
 
 # Utility functions
@@ -21,13 +23,12 @@ def write_file(file_path: str, content: str) -> None:
 def save_auto_improve_metadata(output_path: str, tracker: IterationTracker, params: Any, status: str) -> None:
     """Save comprehensive metadata for auto-improve runs."""
     summary = tracker.get_summary()
-    summary.update({
-        "status": status,
-        "target_score": params.target_score,
-        "max_iterations": params.max_iter,
-    })
+    summary.status = status
+    summary.target_score = params.target_score
+    summary.max_iterations = params.max_iter
+    
     metadata_path = Path(output_path).parent / f"{tracker.doc_info.doc_id}_auto_improve_metadata.json"
-    metadata_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    metadata_path.write_text(json.dumps(summary.to_dict(), indent=2), encoding="utf-8")
 
 DEFAULT_MAX_ITERATIONS = 2  # Auto-improve iteration cap
 DEFAULT_TARGET_SCORE = 85  # Desired quality score (0-100 scale)
@@ -92,17 +93,17 @@ rule evaluate_and_improve:
         Path(output.feedback).write_text(feedback)
         Path(output.improved).write_text(improved_content)
         
-        # Save metadata
-        metadata = {
+        # Save metadata using Box
+        metadata = Box({
             "document": wildcards.name,
             "timestamp": datetime.utcnow().strftime("%Y%m%dT%H%M%SZ"),
             "score": score,
             "feedback": feedback,
             "input_file": str(input.doc),
             "method": "evaluate_and_improve"
-        }
+        })
         metadata_path = output_dir / f"{wildcards.name}_improved_metadata.json"
-        metadata_path.write_text(json.dumps(metadata, indent=2))
+        metadata_path.write_text(json.dumps(metadata.to_dict(), indent=2))
 
 rule auto_improve:
     input:

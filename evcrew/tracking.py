@@ -4,7 +4,9 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Optional
+
+from box import Box
 
 
 @dataclass
@@ -65,28 +67,32 @@ class IterationTracker:
         result = IterationResult(iteration=iteration, metrics=metrics, improved_path=improved_path, improvement_delta=improvement_delta)
         self.iterations.append(result)
 
-    def get_summary(self) -> dict[str, Any]:
-        """Get tracking summary."""
+    def get_summary(self) -> Box:
+        """Get tracking summary as a Box object."""
         if not self.iterations:
-            return {}
+            return Box({})
 
         initial = self.iterations[0]
         final = self.iterations[-1]
 
-        return {
-            "launch_id": self.launch_id,
-            "document": self.doc_info.doc_id,
-            "path": self.doc_info.path,
-            "iterations_count": len(self.iterations) - 1,  # Exclude initial evaluation
-            "initial_score": initial.metrics.score,
-            "final_score": final.metrics.score,
-            "total_improvement": final.metrics.score - initial.metrics.score,
-            "duration_seconds": (datetime.utcnow() - self.start_time).total_seconds(),
-            "iterations": [{"number": r.iteration, "score": r.metrics.score, "improvement": r.improvement_delta, "path": r.improved_path} for r in self.iterations],
-        }
+        return Box(
+            {
+                "launch_id": self.launch_id,
+                "document": self.doc_info.doc_id,
+                "path": self.doc_info.path,
+                "iterations_count": len(self.iterations) - 1,  # Exclude initial evaluation
+                "initial_score": initial.metrics.score,
+                "final_score": final.metrics.score,
+                "total_improvement": final.metrics.score - initial.metrics.score,
+                "duration_seconds": (datetime.utcnow() - self.start_time).total_seconds(),
+                "iterations": [
+                    Box({"number": r.iteration, "score": r.metrics.score, "improvement": r.improvement_delta, "path": r.improved_path}) for r in self.iterations
+                ],
+            }
+        )
 
     def save_to_file(self, output_dir: Path) -> None:
         """Save tracking data to JSON file."""
         summary = self.get_summary()
         output_path = output_dir / f"{self.doc_info.doc_id}_tracking.json"
-        output_path.write_text(json.dumps(summary, indent=2))
+        output_path.write_text(json.dumps(summary.to_dict(), indent=2))

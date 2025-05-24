@@ -93,7 +93,7 @@ Each agent uses the OpenAI GPT-4 model by default and includes persistent memory
 - Update README.md in each commit
 - Use Snakemake https://snakemake.readthedocs.io/en/stable/ as command executore
 - use ruff as linter
-- use uv as pip orf twine
+- use uv instaead pip or twine
 - uses Miller https://miller.readthedocs.io/en/6.13.0/
 - each function and module and file should have 1-line docstring
 - used functional programming style where possible
