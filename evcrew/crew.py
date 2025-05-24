@@ -6,6 +6,7 @@ from typing import Optional
 from crewai import Crew, Process
 
 from .agents import DocumentEvaluator, DocumentImprover
+from .tracking import IterationTracker
 
 __all__ = ["DocumentCrew"]
 
@@ -38,21 +39,21 @@ class DocumentCrew:
 
     def auto_improve(
         self, content: str, output_dir: Path, doc_name: str, max_iterations: int = 2, target_score: float = 85, input_path: Optional[str] = None
-    ) -> tuple[str, list, str]:
-        """Auto-improve document until target score or max iterations reached, returns (final_doc, history, status)."""
-        improvement_history = []
+    ) -> tuple[str, IterationTracker, str]:
+        """Auto-improve document until target score or max iterations reached, returns (final_doc, tracker, status)."""
+        tracker = IterationTracker(doc_name, input_path or "unknown")
+
         print("  📊 Initial evaluation...", end="", flush=True)
         score, feedback = self.evaluator.execute(content)
         print(f" Score: {score:.1f}%")
-        initial_history = {"iteration": 0, "score": score, "feedback": feedback}
-        if input_path:
-            initial_history["file"] = input_path
-        improvement_history.append(initial_history)
+
+        tracker.add_iteration(0, score, feedback, input_path)
         self.evaluator.save_results(score, feedback, output_dir, f"{doc_name}_initial", content)
 
         if score >= target_score:
             print(f"✅ Target score already met! Score: {score:.1f}%")
-            return content, improvement_history, "target_met_original"
+            tracker.save_to_file(output_dir)
+            return content, tracker, "target_met_original"
 
         current_doc = content
         current_feedback = feedback
@@ -63,9 +64,9 @@ class DocumentCrew:
             iter_path = output_dir / f"{doc_name}_iter{iteration}.md"
             self.improver.save_results(improved_doc, iter_path)
             score, feedback = self.evaluator.execute(improved_doc)
-            improvement = score - improvement_history[-1]["score"]
 
-            improvement_history.append({"iteration": iteration, "score": score, "feedback": feedback, "improvement": improvement, "file": str(iter_path)})
+            tracker.add_iteration(iteration, score, feedback, str(iter_path))
+            improvement = tracker.iterations[-1].improvement_delta or 0
 
             print(f" Score: {score:.1f}% ({improvement:+.1f}%)")
 
@@ -75,7 +76,7 @@ class DocumentCrew:
             current_doc = improved_doc
             current_feedback = feedback
 
-        final_score = improvement_history[-1]["score"]
+        final_score = tracker.iterations[-1].metrics.score
         if final_score >= target_score:
             status = "target_reached"
             print(f"✅ Target score reached! Final score: {final_score:.1f}%")
@@ -83,4 +84,5 @@ class DocumentCrew:
             status = "max_iterations_reached"
             print(f"⚠️  Max iterations reached. Final score: {final_score:.1f}%")
 
-        return current_doc, improvement_history, status
+        tracker.save_to_file(output_dir)
+        return current_doc, tracker, status

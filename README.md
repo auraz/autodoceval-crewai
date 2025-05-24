@@ -93,6 +93,17 @@ with open("docs/example_improved.md", "w") as f:
 
 AutoDocEval uses CrewAI agents to evaluate and improve documentation:
 
+### Iteration Tracking
+
+The system includes a comprehensive iteration tracking system that captures:
+- Document metadata (ID, path, timestamps)
+- Quality metrics for each iteration (scores, feedback)
+- Improvement deltas between iterations
+- File paths for each improved version
+- Total duration and iteration count
+
+Tracking data is saved as JSON files for analysis and monitoring.
+
 ### Agents
 
 - **DocumentEvaluator**: Analyzes document clarity, completeness, and coherence

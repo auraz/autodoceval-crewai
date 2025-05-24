@@ -5,7 +5,7 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from evcrew import DocumentCrew
+from evcrew import DocumentCrew, IterationTracker
 
 # Utility functions
 def read_file(file_path: str) -> str:
@@ -18,21 +18,16 @@ def write_file(file_path: str, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding="utf-8")
 
-def save_auto_improve_metadata(output_path: str, doc_name: str, history: list[dict], params: Any, status: str) -> None:
+def save_auto_improve_metadata(output_path: str, tracker: IterationTracker, params: Any, status: str) -> None:
     """Save comprehensive metadata for auto-improve runs."""
-    metadata = {
-        "document": doc_name,
-        "timestamp": datetime.utcnow().strftime("%Y%m%dT%H%M%SZ"),
+    summary = tracker.get_summary()
+    summary.update({
         "status": status,
         "target_score": params.target_score,
         "max_iterations": params.max_iter,
-        "improvement_history": history,
-        "final_score": history[-1]["score"],
-        "total_improvement": history[-1]["score"] - history[0]["score"],
-        "iterations_used": len(history) - 1
-    }
-    metadata_path = Path(output_path).parent / f"{doc_name}_auto_improve_metadata.json"
-    metadata_path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+    })
+    metadata_path = Path(output_path).parent / f"{tracker.doc_info.doc_id}_auto_improve_metadata.json"
+    metadata_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
 
 DEFAULT_MAX_ITERATIONS = 2  # Auto-improve iteration cap
 DEFAULT_TARGET_SCORE = 85  # Desired quality score (0-100 scale)
@@ -124,7 +119,7 @@ rule auto_improve:
         print(f"🔄 Starting auto-improvement for {wildcards.name}...")
         
         crew = DocumentCrew()
-        final_doc, history, status = crew.auto_improve(doc_content, output_dir, wildcards.name, params.max_iter, params.target_score, str(input.doc))
+        final_doc, tracker, status = crew.auto_improve(doc_content, output_dir, wildcards.name, params.max_iter, params.target_score, str(input.doc))
         
         write_file(output.final, final_doc)
-        save_auto_improve_metadata(output.final, wildcards.name, history, params, status)
+        save_auto_improve_metadata(output.final, tracker, params, status)
