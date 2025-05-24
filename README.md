@@ -97,7 +97,7 @@ Memory is always enabled for all agent operations:
 - Agents remember previous evaluations and improvements
 - Learn from past experiences for consistent results
 - Recognize patterns across multiple documents
-- Memory is persisted to `memory/{memory_id}/` as markdown files
+- Memory is persisted to `docs/memory/{memory_id}/` as markdown files
 - Each memory entry is timestamped for tracking
 
 ### Workflow System
@@ -133,12 +133,14 @@ autodoceval-crewai/
 │   ├── prompts/         # Agent prompt templates
 │   │   ├── evaluator.md # Evaluation prompt
 │   │   └── improver.md  # Improvement prompt
+│   ├── tests/           # Unit tests
+│   │   └── test_evaluator.py
 │   ├── __init__.py      # Package exports
 │   └── core.py          # Simple API wrappers
 ├── docs/                # Document storage
 │   ├── input/           # Input documents
-│   └── output/          # Evaluation results
-├── memory/              # Persistent memory storage
+│   ├── output/          # Evaluation results
+│   └── memory/          # Persistent memory storage
 ├── config/              # Configuration files
 │   └── CLAUDE.md        # AI assistant instructions
 ├── Snakefile            # Workflow definitions

@@ -35,7 +35,6 @@ snakemake --cores 1 evaluate
 snakemake --cores 1 all --config max_iterations=3 target_score=80
 ```
 
-
 ## Architecture Overview
 
 AutoDocEval is a document evaluation and improvement system using CrewAI agents with persistent memory capabilities.
@@ -43,16 +42,19 @@ AutoDocEval is a document evaluation and improvement system using CrewAI agents 
 ### Core Components
 
 1. **Agent System**: Two main agent types handle document processing:
+
    - `DocumentEvaluator`: Assesses document clarity and provides feedback (implemented in `evcrew/agents/evaluator.py`)
    - `DocumentImprover`: Revises documents based on evaluation feedback (implemented in `evcrew/agents/improver.py`)
 
 2. **Memory System**: CrewAI-based persistent memory allows agents to:
+
    - Remember previous document evaluations and improvements
    - Learn from past experiences for more consistent results
    - Recognize patterns across multiple documents
    - Memory IDs can be customized to control context sharing
 
 3. **Core Functions**: The main API is exposed in `evcrew/core.py`:
+
    - `evaluate_document()`: Analyzes document quality and provides a score and feedback
    - `improve_document()`: Generates improved content based on feedback
    - `auto_improve_document()`: Runs an iterative improvement loop until target quality or iteration limit
@@ -72,12 +74,12 @@ AutoDocEval is a document evaluation and improvement system using CrewAI agents 
 ### Agent Implementation
 
 The agents are implemented with CrewAI's agent framework, which handles:
+
 - Agent initialization with roles, goals, and backstories
 - Memory persistence and retrieval
 - Task execution and completion
 
 Each agent uses the OpenAI GPT-4 model by default and includes persistent memory capabilities for improved performance over time.
-
 
 ### instructions
 
@@ -104,3 +106,4 @@ Each agent uses the OpenAI GPT-4 model by default and includes persistent memory
 - use short and consice function and method names
 - avoid redefinitions
 - promts max lenghs is 100
+- tests should be located within respectful moodule

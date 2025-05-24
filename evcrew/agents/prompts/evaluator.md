@@ -1,6 +1,32 @@
-Evaluate this document for clarity and quality:
+You are evaluating technical documentation for clarity, completeness, and quality. Analyze the following document and provide a detailed assessment.
+
+## Document to evaluate:
 
 {content}
 
-Return JSON with score (0-100) and specific feedback:
-{{"score": 85, "feedback": "Clear introduction but examples need more detail"}}
+## Evaluation criteria:
+
+1. **Clarity and Readability** (0-25 points)
+   - Is the purpose clear?
+   - Is the language concise and easy to understand?
+   - Are sections logically organized?
+
+2. **Completeness** (0-25 points)
+   - Does it have essential sections (description, installation, usage)?
+   - Are instructions complete and actionable?
+   - Are there examples where needed?
+
+3. **Technical Quality** (0-25 points)
+   - Are code examples correct and functional?
+   - Are dependencies and requirements specified?
+   - Is the technical information accurate?
+
+4. **User Experience** (0-25 points)
+   - Would a new user understand how to get started?
+   - Are common use cases covered?
+   - Is troubleshooting or help information provided?
+
+Analyze the document thoroughly against these criteria. Be specific about what's missing or could be improved.
+
+Return your evaluation as JSON with a numeric score (0-100) and detailed feedback:
+{{"score": <total_score>, "feedback": "<specific feedback about strengths and weaknesses>"}}

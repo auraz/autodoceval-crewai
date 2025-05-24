@@ -28,7 +28,7 @@ class BaseAgent:
             verbose=True,
             llm_model="gpt-4",
         )
-        self.memory_dir = Path("memory") / memory_id
+        self.memory_dir = Path("docs") / "memory" / memory_id
         self.memory_dir.mkdir(parents=True, exist_ok=True)
      
     def exec(self, task_desc: str) -> str:
