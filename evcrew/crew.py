@@ -42,7 +42,7 @@ class DocumentCrew:
         score, feedback = self.evaluator.execute(content)
         print(f" Score: {score:.1f}%")
         improvement_history.append({"iteration": 0, "score": score, "feedback": feedback})
-        self.evaluator.save_evaluation(score, feedback, output_dir, f"{doc_name}_initial", content)
+        self.evaluator.save_results(score, feedback, output_dir, f"{doc_name}_initial", content)
 
         if score >= target_score:
             return content, improvement_history
@@ -54,7 +54,7 @@ class DocumentCrew:
             print(f"  📝 Iteration {iteration}/{max_iterations}...", end="", flush=True)
             improved_doc = self.improver.execute(current_doc, current_feedback)
             iter_path = output_dir / f"{doc_name}_iter{iteration}.md"
-            self.improver.save_improvement(improved_doc, iter_path)
+            self.improver.save_results(improved_doc, iter_path)
             score, feedback = self.evaluator.execute(improved_doc)
             improvement = score - improvement_history[-1]["score"]
 

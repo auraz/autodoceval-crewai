@@ -30,7 +30,7 @@ class DocumentEvaluator(BaseAgent):
         result = super().execute(task_description, EvaluationResult)
         return result.score, result.feedback.strip()
 
-    def save_evaluation(self, score: float, feedback: str, output_dir, doc_name: str, input_content: Optional[str] = None) -> None:
+    def save_results(self, score: float, feedback: str, output_dir, doc_name: str, input_content: Optional[str] = None) -> None:
         """Save evaluation results using base class method."""
         results = {"score": f"{score:.1f}%", "feedback": feedback}
         metadata = {"input_length": len(input_content)} if input_content else {}

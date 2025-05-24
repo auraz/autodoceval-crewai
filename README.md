@@ -110,10 +110,10 @@ The system uses specialized agents for document processing:
   - `save_results()`: Generic method for saving results with metadata
 - **DocumentEvaluator**: Analyzes document clarity and provides structured feedback
   - Implements `create_task()` for evaluation tasks
-  - `save_evaluation()`: Specialized method using base class save functionality
+  - `save_results()`: Saves evaluation scores and feedback using base class functionality
 - **DocumentImprover**: Transforms documents based on evaluation feedback
   - Implements `create_task()` for improvement tasks
-  - `save_improvement()`: Saves improved documents to disk
+  - `save_results()`: Saves improved documents to disk
 - **DocumentCrew**: Orchestrates multi-agent workflows
   - `evaluate_and_improve()`: Combined evaluation and improvement with memory
   - `auto_improve()`: Iterative improvement until target score reached

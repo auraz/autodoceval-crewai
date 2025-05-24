@@ -30,7 +30,7 @@ class DocumentImprover(BaseAgent):
         result = super().execute(task_description, ImprovementResult)
         return result.improved_content
 
-    def save_improvement(self, improved_content: str, output_path: Path) -> None:
+    def save_results(self, improved_content: str, output_path: Path) -> None:
         """Save improved document to disk."""
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(improved_content)
