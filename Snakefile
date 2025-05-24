@@ -17,6 +17,23 @@ def write_file(file_path: str, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding="utf-8")
 
+def save_auto_improve_metadata(output_path: str, doc_name: str, history: list, params, status: str) -> None:
+    """Save comprehensive metadata for auto-improve runs."""
+    metadata = {
+        "document": doc_name,
+        "timestamp": datetime.utcnow().strftime("%Y%m%dT%H%M%SZ"),
+        "status": status,
+        "target_score": params.target_score,
+        "max_iterations": params.max_iter,
+        "memory_id": params.memory,
+        "improvement_history": history,
+        "final_score": history[-1]["score"],
+        "total_improvement": history[-1]["score"] - history[0]["score"],
+        "iterations_used": len(history) - 1
+    }
+    metadata_path = Path(output_path).parent / f"{doc_name}_auto_improve_metadata.json"
+    metadata_path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+
 # Default configuration values
 DEFAULT_MEMORY_ID = "api_docs_memory"  # Set to None to generate unique IDs
 DEFAULT_MAX_ITERATIONS = 3             # Auto-improve iteration cap
@@ -73,6 +90,18 @@ rule evaluate_doc:
         # Write outputs
         Path(output.score).write_text(f"{score:.1f}%")
         Path(output.feedback).write_text(feedback)
+        
+        # Save metadata in the same directory as outputs
+        metadata = {
+            "document": wildcards.name,
+            "timestamp": timestamp,
+            "score": score,
+            "feedback": feedback,
+            "memory_id": memory_id,
+            "input_file": str(input.doc)
+        }
+        metadata_path = Path(output.score).parent / f"{wildcards.name}_metadata.json"
+        metadata_path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
 
 rule auto_improve:
     input:
@@ -87,15 +116,13 @@ rule auto_improve:
         Path(output.final).parent.mkdir(parents=True, exist_ok=True)
         doc_path = str(input.doc)
 
-        print(f"🔄 Starting auto-improvement loop for {doc_path}")
-        print(f"Target score: {params.target_score:.1f}%")
-        print(f"Maximum iterations: {params.max_iter}")
+        # Suppress verbose output
 
         # Setup memory IDs
         base_memory_id = params.memory or f"autodoceval_{wildcards.name}_{uuid.uuid4().hex[:8]}"
         evaluator_memory_id = f"{base_memory_id}_evaluator"
         improver_memory_id = f"{base_memory_id}_improver"
-        print(f"🧠 Using memory IDs: {evaluator_memory_id}, {improver_memory_id}")
+        # Memory IDs: evaluator_memory_id, improver_memory_id
 
         # Create agents
         evaluator = DocumentEvaluator(evaluator_memory_id)
@@ -104,7 +131,13 @@ rule auto_improve:
         # Read and evaluate original document
         original_doc = read_file(doc_path)
         original_score, original_feedback = evaluator.evaluate(original_doc)
-        print(f"Original document score: {original_score:.1f}%")
+        # Track improvement history
+        improvement_history = [{
+            "iteration": 0,
+            "score": original_score,
+            "feedback": original_feedback,
+            "file": doc_path
+        }]
 
         current_doc = original_doc
         current_feedback = original_feedback
@@ -114,13 +147,14 @@ rule auto_improve:
 
         # Skip improvement if already at target
         if original_score >= params.target_score:
-            print(f"✅ Original document already meets target score!")
             write_file(output.final, original_doc)
+            # Save metadata
+            save_auto_improve_metadata(output.final, wildcards.name, improvement_history, params, "target_met_original")
             return
 
         while iteration < params.max_iter:
             iteration += 1
-            print(f"\n📝 Iteration {iteration}/{params.max_iter}")
+            # Iteration {iteration}/{params.max_iter}
 
             # Improve document
             improved_doc = improver.improve(current_doc, current_feedback)
@@ -133,25 +167,33 @@ rule auto_improve:
             # Evaluate improved document
             score, feedback = evaluator.evaluate(improved_doc)
 
-            print(f"Score after iteration {iteration}: {score:.1f}%")
             improvement = score - last_score
-            print(f"Improvement: {improvement:+.1f}% from previous")
+            
+            # Add to history
+            improvement_history.append({
+                "iteration": iteration,
+                "score": score,
+                "feedback": feedback,
+                "improvement": improvement,
+                "file": str(improved_path)
+            })
 
             if score >= params.target_score:
-                print(f"✅ Target score reached!")
                 break
 
             current_doc = improved_doc
             current_feedback = feedback
             last_score = score
 
-        print(f"\n📈 Total improvement: {score - original_score:+.1f}%")
-
-        if iteration >= params.max_iter and score < params.target_score:
-            print(f"⚠️ Max iterations reached without achieving target")
-
-        print("\n✅ Auto-improvement completed!")
+        # Determine completion status
+        if score >= params.target_score:
+            status = "target_reached"
+        else:
+            status = "max_iterations_reached"
 
         # Copy final result
         from shutil import copyfile
         copyfile(final_path, output.final)
+        
+        # Save comprehensive metadata
+        save_auto_improve_metadata(output.final, wildcards.name, improvement_history, params, status)

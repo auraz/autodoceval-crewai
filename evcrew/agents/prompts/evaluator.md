@@ -28,5 +28,4 @@ You are evaluating technical documentation for clarity, completeness, and qualit
 
 Analyze the document thoroughly against these criteria. Be specific about what's missing or could be improved.
 
-Return your evaluation as JSON with a numeric score (0-100) and detailed feedback:
-{{"score": <total_score>, "feedback": "<specific feedback about strengths and weaknesses>"}}
+Provide a numeric score (0-100) and detailed feedback about the document's strengths and weaknesses.

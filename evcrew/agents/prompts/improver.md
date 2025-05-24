@@ -6,5 +6,4 @@ Document:
 Feedback:
 {feedback}
 
-Return JSON with improved content:
-{{"improved_content": "The enhanced document text..."}}
+Generate an improved version of the document that addresses all the feedback points while maintaining the original structure and intent.

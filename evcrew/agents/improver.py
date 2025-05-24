@@ -1,4 +1,4 @@
-from .base import BaseAgent, parse_improve
+from .base import BaseAgent, ImprovementResult
 
 
 class DocumentImprover(BaseAgent):
@@ -18,10 +18,9 @@ class DocumentImprover(BaseAgent):
         prompt_template = prompt_path.read_text()
         task_description = prompt_template.format(content=content, feedback=feedback)
         
-        response = self.exec(task_description)
-        result = parse_improve(response)
-
-        memory_entry = f"Original: {content}\nImproved: {result}\nBased on feedback: {feedback}"
+        result = self.exec(task_description, ImprovementResult)
+        
+        memory_entry = f"Original: {content}\nImproved: {result.improved_content}\nBased on feedback: {feedback}"
         self._save_memory(memory_entry)
 
-        return result
+        return result.improved_content

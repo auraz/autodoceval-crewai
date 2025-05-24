@@ -1,20 +1,18 @@
 from .agents import (  # re-export all public agent symbols
-    AgentResult,
     BaseAgent,
     DocumentEvaluator,
     DocumentImprover,
-    parse_eval,
-    parse_improve,
+    EvaluationResult,
+    ImprovementResult,
 )
 from .core import evaluate_document, improve_document
 
 __all__ = [
-    "AgentResult",
     "BaseAgent",
     "DocumentEvaluator",
     "DocumentImprover",
+    "EvaluationResult",
+    "ImprovementResult",
     "evaluate_document",
     "improve_document",
-    "parse_eval",
-    "parse_improve",
 ]

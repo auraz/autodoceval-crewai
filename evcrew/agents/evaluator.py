@@ -1,4 +1,4 @@
-from .base import BaseAgent, parse_eval
+from .base import BaseAgent, EvaluationResult
 
 
 class DocumentEvaluator(BaseAgent):
@@ -18,10 +18,9 @@ class DocumentEvaluator(BaseAgent):
         prompt_template = prompt_path.read_text()
         task_description = prompt_template.format(content=content)
         
-        response = self.exec(task_description)
-        score, feedback = parse_eval(response)
-
-        memory_entry = f"Document: {content}\nScore: {score}\nFeedback: {feedback}"
+        result = self.exec(task_description, EvaluationResult)
+        
+        memory_entry = f"Document: {content}\nScore: {result.score}\nFeedback: {result.feedback}"
         self._save_memory(memory_entry)
 
-        return score, feedback.strip()
+        return result.score, result.feedback.strip()
