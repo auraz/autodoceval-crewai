@@ -5,6 +5,7 @@ import uuid
 from datetime import datetime
 
 from evcrew.agents import DocumentEvaluator, DocumentImprover
+from evcrew import DocumentCrew
 
 # Utility functions
 def read_file(file_path: str) -> str:
