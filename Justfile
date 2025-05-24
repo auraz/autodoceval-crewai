@@ -1,66 +1,57 @@
 # Document evaluation and improvement workflow using Just
 
-# Default settings
-max_iterations := "2"
+# Settings
 input_dir := "docs/input"
 output_dir := "docs/output"
 
-# Default recipe - show available commands
+# Default: show available commands
 default:
     @just --list
 
-# Auto-improve all documents in input directory
+# Auto-improve all documents
 all: 
     #!/usr/bin/env python3
+    import sys; sys.path.insert(0, '.')
     from pathlib import Path
     from evcrew import DocumentCrew
     from evcrew.utils import read_file
     
-    input_dir = Path("{{input_dir}}")
-    output_dir = Path("{{output_dir}}")
-    max_iterations = int("{{max_iterations}}")
-    
-    for doc_path in sorted(input_dir.glob("*.md")):
-        doc_name = doc_path.stem
-        print(f"\n🔄 Processing {doc_name}...")
-        
+    for doc_path in sorted(Path("{{input_dir}}").glob("*.md")):
+        name = doc_path.stem
+        print(f"\n🔄 Processing {name}...")
         crew = DocumentCrew()
-        content = read_file(doc_path)
-        output_path = output_dir / doc_name
+        output_path = Path("{{output_dir}}") / name
         output_path.mkdir(parents=True, exist_ok=True)
-        
-        iterator = crew.auto_improve_one(content, output_path, doc_name, str(doc_path), max_iterations)
+        crew.auto_improve_one(read_file(doc_path), output_path, name, str(doc_path))
 
-# Evaluate all documents without improvement
+# Evaluate all documents
 evaluate-all:
     #!/usr/bin/env python3
+    import sys; sys.path.insert(0, '.')
     from pathlib import Path
     from evcrew import DocumentCrew
     from evcrew.utils import read_file
     
-    input_dir = Path("{{input_dir}}")
-    output_dir = Path("{{output_dir}}")
-    
-    for doc_path in sorted(input_dir.glob("*.md")):
-        doc_name = doc_path.stem
-        output_path = output_dir / doc_name
+    crew = DocumentCrew()
+    for doc_path in sorted(Path("{{input_dir}}").glob("*.md")):
+        name = doc_path.stem
+        output_path = Path("{{output_dir}}") / name
         output_path.mkdir(parents=True, exist_ok=True)
-        
-        crew = DocumentCrew()
         content = read_file(doc_path)
         score, feedback = crew.evaluate_one(content)
-        print(f"📊 {doc_name}: {score:.0f}%")
-        crew.evaluator.save(score, feedback, content, output_path, doc_name, doc_path)
+        print(f"📊 {name}: {score:.0f}%")
+        crew.evaluator.save(score, feedback, content, output_path, name, doc_path)
 
 # Evaluate single document
 evaluate-one name:
     #!/usr/bin/env python3
+    import sys; sys.path.insert(0, '.')
     from pathlib import Path
     from evcrew import DocumentCrew
     from evcrew.utils import read_file
     
-    doc_path = Path("{{input_dir}}") / "{{name}}.md"
-    output_path = Path("{{output_dir}}") / "{{name}}"
+    doc_path = Path("{{input_dir}}/{{name}}.md")
+    output_path = Path("{{output_dir}}/{{name}}")
     output_path.mkdir(parents=True, exist_ok=True)
     
     crew = DocumentCrew()
@@ -72,78 +63,69 @@ evaluate-one name:
 # Evaluate and improve all documents
 evaluate-and-improve-all:
     #!/usr/bin/env python3
+    import sys; sys.path.insert(0, '.')
     from pathlib import Path
     from evcrew import DocumentCrew
     from evcrew.utils import read_file
     
-    input_dir = Path("{{input_dir}}")
-    output_dir = Path("{{output_dir}}")
-    
-    for doc_path in sorted(input_dir.glob("*.md")):
-        doc_name = doc_path.stem
-        print(f"🔄 {doc_name}: evaluating and improving...")
-        
-        output_path = output_dir / doc_name
+    crew = DocumentCrew()
+    for doc_path in sorted(Path("{{input_dir}}").glob("*.md")):
+        name = doc_path.stem
+        print(f"🔄 {name}: evaluating and improving...")
+        output_path = Path("{{output_dir}}") / name
         output_path.mkdir(parents=True, exist_ok=True)
-        
-        crew = DocumentCrew()
         content = read_file(doc_path)
-        improved_content, score, feedback = crew.evaluate_and_improve_one(content, doc_name)
+        improved, score, feedback = crew.evaluate_and_improve_one(content, name)
         print(f"   → Final: {score:.0f}%")
-        crew.improver.save(content, improved_content, score, feedback, output_path, doc_name, doc_path)
+        crew.improver.save(content, improved, score, feedback, output_path, name, doc_path)
 
 # Evaluate and improve single document
 evaluate-and-improve-one name:
     #!/usr/bin/env python3
+    import sys; sys.path.insert(0, '.')
     from pathlib import Path
     from evcrew import DocumentCrew
     from evcrew.utils import read_file
     
-    doc_path = Path("{{input_dir}}") / "{{name}}.md"
-    output_path = Path("{{output_dir}}") / "{{name}}"
+    doc_path = Path("{{input_dir}}/{{name}}.md")
+    output_path = Path("{{output_dir}}/{{name}}")
     output_path.mkdir(parents=True, exist_ok=True)
     
     print(f"🔄 {{name}}: evaluating and improving...")
     crew = DocumentCrew()
     content = read_file(doc_path)
-    improved_content, score, feedback = crew.evaluate_and_improve_one(content, "{{name}}")
+    improved, score, feedback = crew.evaluate_and_improve_one(content, "{{name}}")
     print(f"   → Final: {score:.0f}%")
-    crew.improver.save(content, improved_content, score, feedback, output_path, "{{name}}", doc_path)
+    crew.improver.save(content, improved, score, feedback, output_path, "{{name}}", doc_path)
 
-# Auto-improve all documents
-auto-improve-all:
-    @just all
+# Auto-improve all documents (alias)
+auto-improve-all: all
 
 # Auto-improve single document from custom path
 auto-improve-one doc name:
     #!/usr/bin/env python3
+    import sys; sys.path.insert(0, '.')
     from pathlib import Path
     from evcrew import DocumentCrew
     from evcrew.utils import read_file
     
-    doc_path = Path("{{doc}}")
-    output_path = Path("{{output_dir}}") / "custom"
-    output_path.mkdir(parents=True, exist_ok=True)
-    
     crew = DocumentCrew()
-    content = read_file(doc_path)
-    iterator = crew.auto_improve_one(content, output_path, "{{name}}", str(doc_path), int("{{max_iterations}}"))
+    output_path = Path("{{output_dir}}/custom")
+    output_path.mkdir(parents=True, exist_ok=True)
+    crew.auto_improve_one(read_file("{{doc}}"), output_path, "{{name}}", "{{doc}}")
 
 # Clean all outputs
 clean:
-    #!/usr/bin/env bash
     rm -rf {{output_dir}}/*
-    echo "✨ Cleaned output directory"
+    @echo "✨ Cleaned output directory"
 
-# Run tests
-test:
+# Development commands
+test: && lint
     uv run pytest evcrew/tests/ -v
 
-# Run linter
 lint:
     uv run ruff check evcrew/
 
-# Format code
 format:
     uv run ruff format evcrew/
 

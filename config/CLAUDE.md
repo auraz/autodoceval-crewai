@@ -107,3 +107,4 @@ Each agent uses the OpenAI GPT-4 model by default and includes persistent memory
 - avoid redefinitions
 - promts max lenghs is 100
 - tests should be located within respectful moodule
+- when writing python or justfile code, be pythonic

@@ -59,8 +59,6 @@ just auto-improve-one path/to/doc.md mydoc
 # Clean outputs
 just clean
 
-# Run with custom max iterations
-just max_iterations=5 all
 
 # Show all available commands
 just
@@ -79,10 +77,10 @@ For programmatic usage:
 ```python
 from evcrew import DocumentCrew
 
-# Create crew instance (default target score = 85)
+# Create crew instance with defaults (target_score=85, max_iterations=2)
 crew = DocumentCrew()
-# Or with custom target score
-crew = DocumentCrew(target_score=90)
+# Or with custom parameters
+crew = DocumentCrew(target_score=90, max_iterations=5)
 
 # Evaluate a document
 score, feedback = crew.evaluate_one("Document content here...")
@@ -96,7 +94,7 @@ improved_content, score, feedback = crew.evaluate_and_improve_one("Document cont
 
 # Auto-improve with iteration tracking
 from pathlib import Path
-iterator = crew.auto_improve_one("Document content...", "docs/output/example", max_iterations=3)
+iterator = crew.auto_improve_one("Document content...", "docs/output/example")
 print(f"Final score: {iterator.final_score:.0f}%, Total improvement: {iterator.total_improvement:.0f}%")
 ```
 
@@ -161,16 +159,14 @@ The Just command runner handles:
 ## Configuration
 
 Default values:
-- `max_iterations`: 2 (set in Justfile, can be overridden)
-- `target_score`: 85 (property of DocumentCrew class)
+- `target_score`: 85 (default parameter of DocumentCrew)
+- `max_iterations`: 2 (default parameter of DocumentCrew)
 
-Override max_iterations via command line:
+To use different values, instantiate DocumentCrew with desired parameters in Python code:
 
-```bash
-just max_iterations=5 all
+```python
+crew = DocumentCrew(target_score=90, max_iterations=5)
 ```
-
-To use a different target score, instantiate DocumentCrew with desired value in Python code.
 
 ## Project Structure
 

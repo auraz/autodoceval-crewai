@@ -14,10 +14,11 @@ __all__ = ["DocumentCrew"]
 class DocumentCrew:
     """Crew for multi-agent document workflows."""
 
-    def __init__(self, target_score: float = 85):
+    def __init__(self, target_score: float = 85, max_iterations: int = 2):
         self.evaluator = DocumentEvaluator()
         self.improver = DocumentImprover()
         self.target_score = target_score
+        self.max_iterations = max_iterations
         self.crew = Crew(
             agents=[self.evaluator.agent, self.improver.agent],
             tasks=[],  # Tasks will be set before kickoff
@@ -49,10 +50,9 @@ class DocumentCrew:
 
         return improve_result.improved_content, eval_result.score, eval_result.feedback
 
-    def auto_improve_one(self, content: str, output_dir: Path | str, doc_name: str = "document", doc_path: str = "unknown", 
-                        max_iterations: int = 2) -> DocumentIterator:
+    def auto_improve_one(self, content: str, output_dir: Path | str, doc_name: str = "document", doc_path: str = "unknown") -> DocumentIterator:
         """Auto-improve document until target score or max iterations reached, returns DocumentIterator with all data."""
-        iterator = DocumentIterator(self.evaluator, self.improver, doc_name, doc_path, content, self.target_score, max_iterations)
+        iterator = DocumentIterator(self.evaluator, self.improver, doc_name, doc_path, content, self.target_score, self.max_iterations)
         
         status = "unknown"
         try:
