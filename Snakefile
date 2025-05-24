@@ -67,7 +67,7 @@ rule evaluate_doc:
         score, feedback = crew.evaluator.execute(doc_content)
         print(f" Score: {score:.1f}%")
         
-        crew.evaluator.save_results(score, feedback, output_dir, wildcards.name, doc_content)
+        crew.evaluator.save_evaluation(score, feedback, output_dir, wildcards.name, doc_content)
 
 rule auto_improve:
     input:

@@ -105,10 +105,15 @@ AutoDocEval uses CrewAI agents to evaluate and improve documentation:
 
 The system uses specialized agents for document processing:
 
+- **BaseAgent**: Abstract base class with common functionality
+  - `create_task()`: Abstract method for creating agent-specific tasks
+  - `save_results()`: Generic method for saving results with metadata
 - **DocumentEvaluator**: Analyzes document clarity and provides structured feedback
-  - Includes `save_results()` method for persisting evaluation outputs
+  - Implements `create_task()` for evaluation tasks
+  - `save_evaluation()`: Specialized method using base class save functionality
 - **DocumentImprover**: Transforms documents based on evaluation feedback
-  - Includes `save_result()` method for saving improved documents
+  - Implements `create_task()` for improvement tasks
+  - `save_improvement()`: Saves improved documents to disk
 - **DocumentCrew**: Orchestrates multi-agent workflows
   - `evaluate_and_improve()`: Combined evaluation and improvement with memory
   - `auto_improve()`: Iterative improvement until target score reached

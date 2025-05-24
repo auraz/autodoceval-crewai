@@ -1,6 +1,6 @@
-import json
-from datetime import datetime
-from pathlib import Path
+from typing import Optional
+
+from crewai import Task
 
 from .base import BaseAgent, EvaluationResult
 
@@ -15,13 +15,10 @@ class DocumentEvaluator(BaseAgent):
             backstory="You are an expert technical writer with years of experience evaluating documentation quality",
         )
 
-    def create_task(self, content: str):
+    def create_task(self, content: str, **kwargs) -> Task:
         """Create evaluation task for the given content."""
-        from crewai import Task
-
         prompt_path = self.prompts_dir / "evaluator.md"
         description = prompt_path.read_text().format(content=content)
-
         return Task(description=description, expected_output="Document evaluation with score and feedback", agent=self.agent, output_pydantic=EvaluationResult)
 
     def execute(self, content: str) -> tuple[float, str]:
@@ -33,17 +30,8 @@ class DocumentEvaluator(BaseAgent):
         result = super().execute(task_description, EvaluationResult)
         return result.score, result.feedback.strip()
 
-    def save_results(self, score: float, feedback: str, output_dir: Path, doc_name: str, input_content: str = None) -> None:
-        """Save evaluation results to disk with metadata."""
-        output_dir.mkdir(parents=True, exist_ok=True)
-        timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
-
-        # Save score and feedback
-        (output_dir / f"{doc_name}_score.txt").write_text(f"{score:.1f}%")
-        (output_dir / f"{doc_name}_feedback.txt").write_text(feedback)
-
-        # Save metadata
-        metadata = {"document": doc_name, "timestamp": timestamp, "score": score, "feedback": feedback}
-        if input_content:
-            metadata["input_length"] = len(input_content)
-        (output_dir / f"{doc_name}_metadata.json").write_text(json.dumps(metadata, indent=2))
+    def save_evaluation(self, score: float, feedback: str, output_dir, doc_name: str, input_content: Optional[str] = None) -> None:
+        """Save evaluation results using base class method."""
+        results = {"score": f"{score:.1f}%", "feedback": feedback}
+        metadata = {"input_length": len(input_content)} if input_content else {}
+        super().save_results(results, output_dir, doc_name, **metadata)
