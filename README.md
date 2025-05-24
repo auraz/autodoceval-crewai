@@ -37,10 +37,13 @@ All document processing is handled through Snakemake workflows:
 # Auto-improve all documents in docs/input/
 snakemake --cores 1 all
 
-# Or just evaluate specific documents without improvement
-snakemake --cores 1 docs/output/myfile/myfile_score.txt
+# Just evaluate all documents without improvement
+snakemake --cores 1 evaluate
 
-# Run with custom settings
+# Evaluate and improve in one step (uses memory for context)
+snakemake --cores 1 docs/output/myfile/myfile_improved.md
+
+# Run auto-improve with custom settings
 snakemake --cores 1 all --config max_iterations=5 target_score=80
 
 # Clean outputs
@@ -48,9 +51,10 @@ snakemake --cores 1 clean
 ```
 
 Place your markdown documents in `docs/input/` and the workflow will:
-- Evaluate each document and save scores to `docs/output/{name}/{name}_score.txt`
-- Generate feedback in `docs/output/{name}/{name}_feedback.txt`
-- Create improved versions in `docs/output/{name}/{name}_final.md`
+- **evaluate rule**: Evaluate documents and save scores/feedback
+- **evaluate_and_improve rule**: Evaluate and improve in one workflow (with memory context)
+- **auto_improve rule**: Iteratively improve until target score reached
+- Outputs saved to `docs/output/{name}/` with appropriate suffixes
 
 ### Python API
 

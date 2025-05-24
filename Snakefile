@@ -53,6 +53,11 @@ rule all:
         expand(str(OUTPUT_DIR) + "/{name}/{name}_final.md",
                name=[stem(p) for p in DOCS])
 
+rule evaluate:
+    input:
+        expand(str(OUTPUT_DIR) + "/{name}/{name}_score.txt",
+               name=[stem(p) for p in DOCS])
+
 rule evaluate_doc:
     input:
         doc=lambda wc: next(p for p in DOCS if stem(p) == wc.name)
@@ -69,6 +74,40 @@ rule evaluate_doc:
         print(f" Score: {score:.1f}%")
         
         crew.evaluator.save_results(score, feedback, output_dir, wildcards.name, doc_content)
+
+rule evaluate_and_improve:
+    input:
+        doc=lambda wc: next(p for p in DOCS if stem(p) == wc.name)
+    output:
+        score    = str(OUTPUT_DIR) + "/{name}/{name}_improved_score.txt",
+        feedback = str(OUTPUT_DIR) + "/{name}/{name}_improved_feedback.txt",
+        improved = str(OUTPUT_DIR) + "/{name}/{name}_improved.md"
+    run:
+        doc_content = Path(input.doc).read_text()
+        output_dir = Path(output.score).parent
+        
+        print(f"🔄 Evaluating and improving {wildcards.name}...")
+        crew = DocumentCrew()
+        improved_content, score, feedback = crew.evaluate_and_improve(doc_content)
+        
+        print(f"   Final score: {score:.1f}%")
+        
+        # Save all outputs
+        Path(output.score).write_text(f"{score:.1f}%")
+        Path(output.feedback).write_text(feedback)
+        Path(output.improved).write_text(improved_content)
+        
+        # Save metadata
+        metadata = {
+            "document": wildcards.name,
+            "timestamp": datetime.utcnow().strftime("%Y%m%dT%H%M%SZ"),
+            "score": score,
+            "feedback": feedback,
+            "input_file": str(input.doc),
+            "method": "evaluate_and_improve"
+        }
+        metadata_path = output_dir / f"{wildcards.name}_improved_metadata.json"
+        metadata_path.write_text(json.dumps(metadata, indent=2))
 
 rule auto_improve:
     input:
