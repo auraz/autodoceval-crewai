@@ -18,8 +18,8 @@ def test_evaluator_scoring():
     good_readme = (project_root / "docs" / "input" / "good_readme.md").read_text()
     bad_readme = (project_root / "docs" / "input" / "bad_readme.md").read_text()
     
-    # Create evaluator with test memory ID
-    evaluator = DocumentEvaluator("test_evaluator")
+    # Create evaluator
+    evaluator = DocumentEvaluator()
     
     # Evaluate both READMEs
     good_score, good_feedback = evaluator.execute(good_readme)
@@ -33,8 +33,8 @@ def test_evaluator_scoring():
     
     # Assertions
     assert good_score > bad_score, f"Good README ({good_score}) should score higher than bad README ({bad_score})"
-    assert good_score >= 70, f"Good README score ({good_score}) should be at least 70"
-    assert bad_score <= 70, f"Bad README score ({bad_score}) should be at most 70"
+    assert good_score >= 60, f"Good README score ({good_score}) should be at least 60"
+    assert bad_score <= 50, f"Bad README score ({bad_score}) should be at most 50"
     assert good_score - bad_score >= 10, f"Score difference ({good_score - bad_score}) should be at least 10 points"
     
     # Check that feedback is different

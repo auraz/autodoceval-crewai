@@ -41,7 +41,7 @@ snakemake --cores 1 all
 snakemake --cores 1 docs/output/myfile/myfile_score.txt
 
 # Run with custom settings
-snakemake --cores 1 all --config max_iterations=5 target_score=80 memory_id=my-project
+snakemake --cores 1 all --config max_iterations=5 target_score=80
 
 # Clean outputs
 snakemake --cores 1 clean
@@ -62,12 +62,12 @@ from evcrew import evaluate_document, improve_document
 # Evaluate a document
 with open("docs/example.md", "r") as f:
     content = f.read()
-score, feedback = evaluate_document(content, memory_id="my-docs")
+score, feedback = evaluate_document(content)
 print(f"Score: {score:.1f}%")
 print(f"Feedback: {feedback}")
 
 # Improve a document
-improved_content = improve_document(content, feedback, memory_id="my-docs")
+improved_content = improve_document(content, feedback)
 
 # Save the improved version
 with open("docs/example_improved.md", "w") as f:
@@ -90,15 +90,14 @@ AutoDocEval uses CrewAI agents to evaluate and improve documentation:
   - Preserves document intent and technical accuracy
   - Learns from previous improvements
 
-### Memory System
+### Agent System
 
-Memory is always enabled for all agent operations:
+The system uses specialized agents for document processing:
 
-- Agents remember previous evaluations and improvements
-- Learn from past experiences for consistent results
-- Recognize patterns across multiple documents
-- Memory is managed by CrewAI with OpenAI embeddings for semantic search
-- Automatically persists context across agent interactions
+- **DocumentEvaluator**: Analyzes document clarity and provides structured feedback
+- **DocumentImprover**: Transforms documents based on evaluation feedback
+- Agents use direct task execution for optimal performance
+- Each agent has a specific role, goal, and backstory for consistent results
 
 ### Workflow System
 
@@ -111,14 +110,13 @@ The Snakemake workflow handles:
 ## Configuration
 
 Default values are set in the Snakefile:
-- `memory_id`: "api_docs_memory" (memory context identifier)
 - `max_iterations`: 3 (maximum improvement iterations)
 - `target_score`: 85 (target quality score, 0-100 scale)
 
 Override via command line:
 
 ```bash
-snakemake --cores 1 all --config memory_id=null target_score=90
+snakemake --cores 1 all --config max_iterations=5 target_score=90
 ```
 
 ## Project Structure

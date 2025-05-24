@@ -4,9 +4,8 @@ from .base import BaseAgent, EvaluationResult
 class DocumentEvaluator(BaseAgent):
     """Document evaluation agent using CrewAI."""
 
-    def __init__(self, memory_id: str):
+    def __init__(self):
         super().__init__(
-            memory_id=memory_id,
             role="Document Quality Evaluator",
             goal="Evaluate document clarity and provide constructive feedback",
             backstory="You are an expert technical writer with years of experience evaluating documentation quality",

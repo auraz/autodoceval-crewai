@@ -4,9 +4,8 @@ from .base import BaseAgent, ImprovementResult
 class DocumentImprover(BaseAgent):
     """Document improvement agent using CrewAI."""
 
-    def __init__(self, memory_id: str):
+    def __init__(self):
         super().__init__(
-            memory_id=memory_id,
             role="Documentation Improver",
             goal="Transform documents into clear, comprehensive, and well-structured content",
             backstory="You are a senior technical writer who specializes in improving documentation",

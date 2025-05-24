@@ -7,21 +7,23 @@ from pydantic import BaseModel
 
 class EvaluationResult(BaseModel):
     """Structured output for document evaluation."""
+
     score: float
     feedback: str
 
+
 class ImprovementResult(BaseModel):
     """Structured output for document improvement."""
+
     improved_content: str
 
 
 class BaseAgent:
     """Base class for CrewAI agents with common initialization and task execution."""
-    
-    def __init__(self, memory_id: str, role: str, goal: str, backstory: str):
+
+    def __init__(self, role: str, goal: str, backstory: str):
         """Initialize base agent with CrewAI configuration."""
         self.api_key = os.getenv("OPENAI_API_KEY")
-        self.memory_id = memory_id
         self.prompts_dir = Path(__file__).parent / "prompts"
         self.agent = Agent(
             role=role,
@@ -30,19 +32,7 @@ class BaseAgent:
             verbose=False,
             llm_model="gpt-4",
         )
-     
+
     def execute(self, task_desc: str, output_model: type[BaseModel]) -> BaseModel:
         """Execute a single task and return structured response."""
-        task = Task(
-            description=task_desc, 
-            expected_output="Structured output",
-            agent=self.agent,
-            output_pydantic=output_model
-        )
-        
-        # Direct task execution - no crew needed for single agent
-        result = task.execute_sync()
-        
-        return result.pydantic
-
-
+        return Task(description=task_desc, expected_output="Structured output", agent=self.agent, output_pydantic=output_model).execute_sync().pydantic

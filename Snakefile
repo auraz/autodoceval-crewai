@@ -25,7 +25,6 @@ def save_auto_improve_metadata(output_path: str, doc_name: str, history: list, p
         "status": status,
         "target_score": params.target_score,
         "max_iterations": params.max_iter,
-        "memory_id": params.memory,
         "improvement_history": history,
         "final_score": history[-1]["score"],
         "total_improvement": history[-1]["score"] - history[0]["score"],
@@ -35,12 +34,10 @@ def save_auto_improve_metadata(output_path: str, doc_name: str, history: list, p
     metadata_path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
 
 # Default configuration values
-DEFAULT_MEMORY_ID = "api_docs_memory"  # Set to None to generate unique IDs
 DEFAULT_MAX_ITERATIONS = 3             # Auto-improve iteration cap
 DEFAULT_TARGET_SCORE = 85              # Desired quality score (0-100 scale)
 
 # Get configuration from command line or use defaults
-MEMORY_ID = config.get("memory_id", DEFAULT_MEMORY_ID)
 MAX_ITERATIONS = config.get("max_iterations", DEFAULT_MAX_ITERATIONS)
 TARGET_SCORE = config.get("target_score", DEFAULT_TARGET_SCORE)
 
@@ -64,8 +61,6 @@ rule evaluate_doc:
     output:
         score    = str(OUTPUT_DIR) + "/{name}/{name}_score.txt",
         feedback = str(OUTPUT_DIR) + "/{name}/{name}_feedback.txt"
-    params:
-        memory  = MEMORY_ID
     run:
         Path(output.score).parent.mkdir(parents=True, exist_ok=True)
 
@@ -74,8 +69,7 @@ rule evaluate_doc:
 
         # Create evaluator and evaluate
         print(f"📊 Evaluating {wildcards.name}...", end="", flush=True)
-        memory_id = params.memory or f"eval_{wildcards.name}_{uuid.uuid4().hex[:8]}"
-        evaluator = DocumentEvaluator(memory_id)
+        evaluator = DocumentEvaluator()
         score, feedback = evaluator.execute(doc_content)
         print(f" Score: {score:.1f}%")
 
@@ -86,7 +80,7 @@ rule evaluate_doc:
 
         (run_dir / "input.txt").write_text(doc_content, encoding="utf-8")
         (run_dir / "output.txt").write_text(f"Score: {score}\nFeedback: {feedback}", encoding="utf-8")
-        meta = {"run_type": "evaluate", "timestamp": timestamp, "score": score, "feedback": feedback, "memory_id": memory_id}
+        meta = {"run_type": "evaluate", "timestamp": timestamp, "score": score, "feedback": feedback}
         (run_dir / "metadata.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
 
         # Write outputs
@@ -99,7 +93,6 @@ rule evaluate_doc:
             "timestamp": timestamp,
             "score": score,
             "feedback": feedback,
-            "memory_id": memory_id,
             "input_file": str(input.doc)
         }
         metadata_path = Path(output.score).parent / f"{wildcards.name}_metadata.json"
@@ -111,7 +104,6 @@ rule auto_improve:
     output:
         final = str(OUTPUT_DIR) + "/{name}/{name}_final.md"
     params:
-        memory        = MEMORY_ID,
         max_iter      = MAX_ITERATIONS,
         target_score  = TARGET_SCORE
     run:
@@ -120,15 +112,9 @@ rule auto_improve:
 
         print(f"🔄 Starting auto-improvement for {wildcards.name}...")
 
-        # Setup memory IDs
-        base_memory_id = params.memory or f"autodoceval_{wildcards.name}_{uuid.uuid4().hex[:8]}"
-        evaluator_memory_id = f"{base_memory_id}_evaluator"
-        improver_memory_id = f"{base_memory_id}_improver"
-        # Memory IDs: evaluator_memory_id, improver_memory_id
-
         # Create agents
-        evaluator = DocumentEvaluator(evaluator_memory_id)
-        improver = DocumentImprover(improver_memory_id)
+        evaluator = DocumentEvaluator()
+        improver = DocumentImprover()
 
         # Read and evaluate original document
         print(f"  📊 Initial evaluation...", end="", flush=True)
