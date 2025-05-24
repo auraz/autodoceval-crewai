@@ -73,9 +73,11 @@ rule evaluate_doc:
         doc_content = Path(input.doc).read_text()
 
         # Create evaluator and evaluate
+        print(f"📊 Evaluating {wildcards.name}...", end="", flush=True)
         memory_id = params.memory or f"eval_{wildcards.name}_{uuid.uuid4().hex[:8]}"
         evaluator = DocumentEvaluator(memory_id)
         score, feedback = evaluator.evaluate(doc_content)
+        print(f" Score: {score:.1f}%")
 
         # Save run data
         timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
@@ -116,7 +118,7 @@ rule auto_improve:
         Path(output.final).parent.mkdir(parents=True, exist_ok=True)
         doc_path = str(input.doc)
 
-        # Suppress verbose output
+        print(f"🔄 Starting auto-improvement for {wildcards.name}...")
 
         # Setup memory IDs
         base_memory_id = params.memory or f"autodoceval_{wildcards.name}_{uuid.uuid4().hex[:8]}"
@@ -129,8 +131,10 @@ rule auto_improve:
         improver = DocumentImprover(improver_memory_id)
 
         # Read and evaluate original document
+        print(f"  📊 Initial evaluation...", end="", flush=True)
         original_doc = read_file(doc_path)
         original_score, original_feedback = evaluator.evaluate(original_doc)
+        print(f" Score: {original_score:.1f}%")
         # Track improvement history
         improvement_history = [{
             "iteration": 0,
@@ -154,7 +158,7 @@ rule auto_improve:
 
         while iteration < params.max_iter:
             iteration += 1
-            # Iteration {iteration}/{params.max_iter}
+            print(f"  📝 Iteration {iteration}/{params.max_iter}...", end="", flush=True)
 
             # Improve document
             improved_doc = improver.improve(current_doc, current_feedback)
@@ -177,6 +181,8 @@ rule auto_improve:
                 "improvement": improvement,
                 "file": str(improved_path)
             })
+            
+            print(f" Score: {score:.1f}% ({improvement:+.1f}%)")
 
             if score >= params.target_score:
                 break
@@ -188,8 +194,10 @@ rule auto_improve:
         # Determine completion status
         if score >= params.target_score:
             status = "target_reached"
+            print(f"✅ Target score reached! Final score: {score:.1f}%")
         else:
             status = "max_iterations_reached"
+            print(f"⚠️  Max iterations reached. Final score: {score:.1f}%")
 
         # Copy final result
         from shutil import copyfile
