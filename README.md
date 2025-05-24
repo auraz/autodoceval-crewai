@@ -29,37 +29,47 @@ export OPENAI_API_KEY=your_api_key_here
 
 ## Usage
 
-### Using Snakemake Workflows
+### Using Just Commands
 
-All document processing is handled through Snakemake workflows:
+All document processing is handled through Just commands:
 
 ```bash
+# Install just (if not already installed)
+brew install just  # macOS
+# or: cargo install just
+
 # Auto-improve all documents in docs/input/
-snakemake --cores 1 all
+just all
 
 # Just evaluate all documents without improvement
-snakemake --cores 1 evaluate_all
+just evaluate-all
 
 # Evaluate single document
-snakemake --cores 1 evaluate_one name=myfile
+just evaluate-one myfile
 
 # Evaluate and improve all documents
-snakemake --cores 1 evaluate_and_improve_all
+just evaluate-and-improve-all
 
 # Evaluate and improve single document
-snakemake --cores 1 evaluate_and_improve_one name=myfile
+just evaluate-and-improve-one myfile
 
 # Auto-improve single document from custom path
-snakemake --cores 1 auto_improve_one doc=path/to/doc.md name=mydoc
+just auto-improve-one path/to/doc.md mydoc
 
 # Clean outputs
-snakemake --cores 1 clean
+just clean
+
+# Run with custom max iterations
+just max_iterations=5 all
+
+# Show all available commands
+just
 ```
 
 Place your markdown documents in `docs/input/` and the workflow will:
-- **evaluate_all/evaluate_one**: Evaluate documents and save scores/feedback
-- **evaluate_and_improve_all/evaluate_and_improve_one**: Evaluate and improve in one workflow
-- **auto_improve_all/auto_improve_one**: Iteratively improve until target score reached
+- **evaluate-all/evaluate-one**: Evaluate documents and save scores/feedback
+- **evaluate-and-improve-all/evaluate-and-improve-one**: Evaluate and improve in one workflow
+- **auto-improve-all/auto-improve-one**: Iteratively improve until target score reached
 - Outputs saved to `docs/output/{name}/` as JSON files with all metadata and content
 
 ### Python API
@@ -141,22 +151,23 @@ The system uses specialized agents for document processing:
 
 ### Workflow System
 
-The Snakemake workflow handles:
+The Just command runner handles:
 - Batch processing of multiple documents
 - Iterative improvement loops
 - Progress tracking and reporting
 - Automatic file organization
+- Additional development commands (test, lint, format)
 
 ## Configuration
 
 Default values:
-- `max_iterations`: 2 (set in Snakefile, can be overridden)
+- `max_iterations`: 2 (set in Justfile, can be overridden)
 - `target_score`: 85 (property of DocumentCrew class)
 
 Override max_iterations via command line:
 
 ```bash
-snakemake --cores 1 all --config max_iterations=5
+just max_iterations=5 all
 ```
 
 To use a different target score, instantiate DocumentCrew with desired value in Python code.
@@ -186,7 +197,7 @@ autodoceval-crewai/
 │   └── output/          # Evaluation results
 ├── config/              # Configuration files
 │   └── CLAUDE.md        # AI assistant instructions
-├── Snakefile            # Workflow definitions
+├── Justfile             # Workflow definitions
 ├── pyproject.toml       # Package metadata
 └── README.md            # This file
 ```

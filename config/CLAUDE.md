@@ -30,9 +30,9 @@ ruff format .
 # Build the package
 python -m build
 
-# Run Snakemake workflows
-snakemake --cores 1 evaluate
-snakemake --cores 1 all --config max_iterations=3 target_score=80
+# Run Just workflows
+just evaluate-all
+just max_iterations=3 all
 ```
 
 ## Architecture Overview
@@ -59,9 +59,9 @@ AutoDocEval is a document evaluation and improvement system using CrewAI agents 
    - `improve_document()`: Generates improved content based on feedback
    - `auto_improve_document()`: Runs an iterative improvement loop until target quality or iteration limit
 
-4. **Workflow System**: Snakemake is used for defining document processing workflows:
-   - All workflow rules and configuration in `Snakefile`
-   - Rules for document evaluation and improvement
+4. **Workflow System**: Just is used for defining document processing workflows:
+   - All workflow commands and configuration in `Justfile`
+   - Commands for document evaluation and improvement
 
 ### Data Flow
 
@@ -91,7 +91,7 @@ Each agent uses the OpenAI GPT-4 model by default and includes persistent memory
 - Add type annotations
 - Be consice and refactor code
 - Update README.md in each commit
-- Use Snakemake https://snakemake.readthedocs.io/en/stable/ as command executore
+- Use Just https://just.systems/ as command runner
 - use ruff as linter
 - use uv instaead pip or twine
 - uses Miller https://miller.readthedocs.io/en/6.13.0/
