@@ -7,7 +7,6 @@ from crewai import Crew, Process
 
 from .agents import DocumentEvaluator, DocumentImprover
 from .process import DocumentIterator
-from .tracking import IterationTracker
 from .utils import read_file, write_file
 
 __all__ = ["DocumentCrew"]
@@ -19,11 +18,7 @@ class DocumentCrew:
     def __init__(self):
         self.evaluator = DocumentEvaluator()
         self.improver = DocumentImprover()
-        self.crew = self._create_crew()
-
-    def _create_crew(self) -> Crew:
-        """Create the crew instance with both agents."""
-        return Crew(
+        self.crew = Crew(
             agents=[self.evaluator.agent, self.improver.agent],
             tasks=[],  # Tasks will be set before kickoff
             process=Process.sequential,
@@ -31,6 +26,14 @@ class DocumentCrew:
             embedder={"provider": "openai", "config": {"model": "text-embedding-3-small"}},
             verbose=False,
         )
+
+    def evaluate_one(self, content: str) -> tuple[float, str]:
+        """Evaluate a single document and return (score, feedback)."""
+        return self.evaluator.execute(content)
+    
+    def improve_one(self, content: str, feedback: str) -> str:
+        """Improve a single document based on feedback and return improved content."""
+        return self.improver.execute(content, feedback)
 
     def evaluate_and_improve(self, content: str, doc_name: str = "document") -> tuple[str, float, str]:
         """Evaluate a document and improve it in one workflow returning (improved_content, score, feedback)."""
@@ -49,38 +52,34 @@ class DocumentCrew:
 
     def auto_improve(
         self, content: str, output_dir: Path, doc_name: str, max_iterations: int = 2, target_score: float = 85, input_path: Optional[str] = None
-    ) -> tuple[str, IterationTracker, str]:
-        """Auto-improve document until target score or max iterations reached, returns (final_doc, tracker, status)."""
-        tracker = IterationTracker(doc_name, input_path or "unknown")
-        iterator = DocumentIterator(self.evaluator, self.improver, content, max_iterations, target_score)
+    ) -> tuple[str, DocumentIterator, str]:
+        """Auto-improve document until target score or max iterations reached, returns (final_doc, iterator, status)."""
+        iterator = DocumentIterator(
+            self.evaluator, self.improver, doc_name, input_path or "unknown", 
+            content, max_iterations, target_score
+        )
         
         status = "unknown"
         try:
-            for iteration_num, doc_content, score, feedback in iterator:
-                if iteration_num == 0:
+            for iter_data in iterator:
+                if iter_data.iteration == 0:
                     print("  📊 Initial evaluation...", end="", flush=True)
-                    print(f" Score: {score:.1f}%")
-                    tracker.add_iteration(0, score, feedback, input_path, doc_content)
+                    print(f" Score: {iter_data.score:.1f}%")
                 else:
-                    print(f"  📝 Iteration {iteration_num}/{max_iterations}...", end="", flush=True)
-                    tracker.add_iteration(iteration_num, score, feedback, None, doc_content)
-                    improvement = tracker.iterations[-1].improvement_delta or 0
-                    print(f" Score: {score:.1f}% ({improvement:+.1f}%)")
+                    print(f"  📝 Iteration {iter_data.iteration}/{max_iterations}...", end="", flush=True)
+                    print(f" Score: {iter_data.score:.1f}% ({iter_data.improvement_delta:+.1f}%)")
                     
         except StopIteration as e:
-            reason = str(e)
-            if "Target score met on initial evaluation" in reason:
-                status = "target_met_original"
-                print(f"✅ Target score already met! Score: {iterator.get_final_score():.1f}%")
-            elif "Target score reached" in reason:
-                status = "target_reached"
-                print(f"✅ Target score reached! Final score: {iterator.get_final_score():.1f}%")
-            elif "Max iterations reached" in reason:
-                status = "max_iterations_reached"
-                print(f"⚠️  Max iterations reached. Final score: {iterator.get_final_score():.1f}%")
+            status = str(e)
+            if status == "target_met_original":
+                print(f"✅ Target score already met! Score: {iterator.final_score:.1f}%")
+            elif status == "target_reached":
+                print(f"✅ Target score reached! Final score: {iterator.final_score:.1f}%")
+            elif status == "max_iterations_reached":
+                print(f"⚠️  Max iterations reached. Final score: {iterator.final_score:.1f}%")
 
-        tracker.save_complete_results(output_dir, status, target_score, max_iterations)
-        return iterator.get_final_content(), tracker, status
+        iterator.save_results(output_dir, status)
+        return iterator.final_content, iterator, status
 
     def evaluate_file(self, input_path: str | Path, output_dir: str | Path, doc_name: str) -> None:
         """Evaluate a document from file and save results."""
@@ -105,14 +104,14 @@ class DocumentCrew:
 
     def auto_improve_file(
         self, input_path: str | Path, output_dir: str | Path, doc_name: str, max_iterations: int = 2, target_score: float = 85
-    ) -> tuple[IterationTracker, str]:
-        """Auto-improve a document from file, returns (tracker, status)."""
+    ) -> tuple[DocumentIterator, str]:
+        """Auto-improve a document from file, returns (iterator, status)."""
         content = read_file(input_path)
         output_dir = Path(output_dir)
 
-        final_doc, tracker, status = self.auto_improve(content, output_dir, doc_name, max_iterations, target_score, str(input_path))
+        final_doc, iterator, status = self.auto_improve(content, output_dir, doc_name, max_iterations, target_score, str(input_path))
 
         # Save final document
         write_file(output_dir / f"{doc_name}_final.md", final_doc)
 
-        return tracker, status
+        return iterator, status

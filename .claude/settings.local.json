@@ -8,7 +8,8 @@
       "Bash(grep:*)",
       "Bash(python:*)",
       "Bash(uv run ruff:*)",
-      "Bash(uv run:*)"
+      "Bash(uv run:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }
