@@ -1,6 +1,7 @@
 """Crew-based workflows for document evaluation and improvement."""
 
 from pathlib import Path
+from typing import Optional
 
 from crewai import Crew, Process
 
@@ -35,13 +36,16 @@ class DocumentCrew:
 
         return improve_result.improved_content, eval_result.score, eval_result.feedback
 
-    def auto_improve(self, content: str, output_dir: Path, doc_name: str, max_iterations: int = 3, target_score: float = 85) -> tuple[str, list]:
+    def auto_improve(self, content: str, output_dir: Path, doc_name: str, max_iterations: int = 3, target_score: float = 85, input_path: Optional[str] = None) -> tuple[str, list]:
         """Auto-improve document until target score or max iterations reached."""
         improvement_history = []
         print("  📊 Initial evaluation...", end="", flush=True)
         score, feedback = self.evaluator.execute(content)
         print(f" Score: {score:.1f}%")
-        improvement_history.append({"iteration": 0, "score": score, "feedback": feedback})
+        initial_history = {"iteration": 0, "score": score, "feedback": feedback}
+        if input_path:
+            initial_history["file"] = input_path
+        improvement_history.append(initial_history)
         self.evaluator.save_results(score, feedback, output_dir, f"{doc_name}_initial", content)
 
         if score >= target_score:

@@ -124,7 +124,7 @@ rule auto_improve:
         print(f"🔄 Starting auto-improvement for {wildcards.name}...")
         
         crew = DocumentCrew()
-        final_doc, history = crew.auto_improve(doc_content, output_dir, wildcards.name, params.max_iter, params.target_score)
+        final_doc, history = crew.auto_improve(doc_content, output_dir, wildcards.name, params.max_iter, params.target_score, str(input.doc))
         
         # Save final document
         write_file(output.final, final_doc)
