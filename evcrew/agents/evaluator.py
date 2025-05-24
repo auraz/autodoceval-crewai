@@ -12,11 +12,11 @@ class DocumentEvaluator(BaseAgent):
             backstory="You are an expert technical writer with years of experience evaluating documentation quality",
         )
 
-    def evaluate(self, content: str) -> tuple[float, str]:
-        """Evaluate a document and return a score and feedback string."""
+    def execute(self, content: str) -> tuple[float, str]:
+        """Execute document evaluation and return a score and feedback string."""
         prompt_path = self.prompts_dir / "evaluator.md"
         prompt_template = prompt_path.read_text()
         task_description = prompt_template.format(content=content)
         
-        result = self.exec(task_description, EvaluationResult)
+        result = super().execute(task_description, EvaluationResult)
         return result.score, result.feedback.strip()

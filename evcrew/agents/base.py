@@ -31,7 +31,7 @@ class BaseAgent:
             llm_model="gpt-4",
         )
      
-    def exec(self, task_desc: str, output_model: type[BaseModel]) -> BaseModel:
+    def execute(self, task_desc: str, output_model: type[BaseModel]) -> BaseModel:
         """Execute task and return structured response using a crew with memory."""
         task = Task(
             description=task_desc, 

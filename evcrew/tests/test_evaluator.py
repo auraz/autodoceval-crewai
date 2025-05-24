@@ -22,8 +22,8 @@ def test_evaluator_scoring():
     evaluator = DocumentEvaluator("test_evaluator")
     
     # Evaluate both READMEs
-    good_score, good_feedback = evaluator.evaluate(good_readme)
-    bad_score, bad_feedback = evaluator.evaluate(bad_readme)
+    good_score, good_feedback = evaluator.execute(good_readme)
+    bad_score, bad_feedback = evaluator.execute(bad_readme)
     
     print(f"Good README score: {good_score:.1f}%")
     print(f"Good README feedback: {good_feedback}\n")

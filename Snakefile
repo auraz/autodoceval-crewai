@@ -76,7 +76,7 @@ rule evaluate_doc:
         print(f"📊 Evaluating {wildcards.name}...", end="", flush=True)
         memory_id = params.memory or f"eval_{wildcards.name}_{uuid.uuid4().hex[:8]}"
         evaluator = DocumentEvaluator(memory_id)
-        score, feedback = evaluator.evaluate(doc_content)
+        score, feedback = evaluator.execute(doc_content)
         print(f" Score: {score:.1f}%")
 
         # Save run data
@@ -133,7 +133,7 @@ rule auto_improve:
         # Read and evaluate original document
         print(f"  📊 Initial evaluation...", end="", flush=True)
         original_doc = read_file(doc_path)
-        original_score, original_feedback = evaluator.evaluate(original_doc)
+        original_score, original_feedback = evaluator.execute(original_doc)
         print(f" Score: {original_score:.1f}%")
         # Track improvement history
         improvement_history = [{
@@ -161,7 +161,7 @@ rule auto_improve:
             print(f"  📝 Iteration {iteration}/{params.max_iter}...", end="", flush=True)
 
             # Improve document
-            improved_doc = improver.improve(current_doc, current_feedback)
+            improved_doc = improver.execute(current_doc, current_feedback)
 
             # Save improved document
             improved_path = OUTPUT_DIR / wildcards.name / f"{wildcards.name}_iter{iteration}.md"
@@ -169,7 +169,7 @@ rule auto_improve:
             final_path = str(improved_path)
 
             # Evaluate improved document
-            score, feedback = evaluator.evaluate(improved_doc)
+            score, feedback = evaluator.execute(improved_doc)
 
             improvement = score - last_score
             

@@ -12,11 +12,11 @@ class DocumentImprover(BaseAgent):
             backstory="You are a senior technical writer who specializes in improving documentation",
         )
 
-    def improve(self, content: str, feedback: str) -> str:
-        """Generate an improved document based on feedback."""
+    def execute(self, content: str, feedback: str) -> str:
+        """Execute document improvement based on feedback."""
         prompt_path = self.prompts_dir / "improver.md"
         prompt_template = prompt_path.read_text()
         task_description = prompt_template.format(content=content, feedback=feedback)
         
-        result = self.exec(task_description, ImprovementResult)
+        result = super().execute(task_description, ImprovementResult)
         return result.improved_content
