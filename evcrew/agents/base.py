@@ -32,7 +32,7 @@ class BaseAgent:
         )
      
     def execute(self, task_desc: str, output_model: type[BaseModel]) -> BaseModel:
-        """Execute task and return structured response using a crew with memory."""
+        """Execute a single task and return structured response."""
         task = Task(
             description=task_desc, 
             expected_output="Structured output",
@@ -40,15 +40,12 @@ class BaseAgent:
             output_pydantic=output_model
         )
         
+        # Single agent crew - simplified for individual tasks
+        # Note: For sequential workflows like auto-improve, we execute
+        # single-agent tasks one at a time rather than using a multi-agent crew
         crew = Crew(
             agents=[self.agent], 
-            tasks=[task], 
-            process=Process.sequential,
-            memory=True,
-            embedder={
-                "provider": "openai",
-                "config": {"model": "text-embedding-3-small"}
-            },
+            tasks=[task],
             verbose=False
         )
         result = crew.kickoff()
