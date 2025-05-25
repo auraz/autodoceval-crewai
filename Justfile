@@ -132,3 +132,22 @@ format:
 # Show project structure
 structure:
     tree -I '__pycache__|*.pyc|.git|venv|.venv|*.egg-info' .
+
+# Publishing commands
+build:
+    uv build
+    @echo "📦 Package built successfully"
+
+publish-test:
+    uv publish --test
+    @echo "🧪 Published to TestPyPI"
+
+publish:
+    uv publish
+    @echo "🚀 Published to PyPI"
+
+# GitHub release
+release version:
+    git tag -a v{{version}} -m "Release v{{version}}"
+    git push origin v{{version}}
+    @echo "🏷️  Tagged release v{{version}}"
