@@ -22,10 +22,18 @@ class ImprovementResult(BaseModel):
 class BaseAgent(ABC):
     """Base class for CrewAI agents with common initialization and task execution."""
 
-    def __init__(self, role: str, goal: str, backstory: str):
-        """Initialize base agent with CrewAI configuration."""
+    def __init__(self, role: str, goal: str, backstory: str, extra_prompt: str = ""):
+        """Initialize base agent with CrewAI configuration.
+        
+        Args:
+            role: Agent's role description
+            goal: Agent's goal description
+            backstory: Agent's backstory description
+            extra_prompt: Additional prompt content to append to agent prompts
+        """
         self.api_key = os.getenv("OPENAI_API_KEY")
         self.prompts_dir = Path(__file__).parent / "prompts"
+        self.extra_prompt = extra_prompt
         self.agent = Agent(
             role=role,
             goal=goal,
