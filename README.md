@@ -10,7 +10,7 @@ Document evaluation and improvement using CrewAI agents with persistent memory c
 
 ```bash
 # Clone the repository
-git clone https://github.com/krybc/autodoceval-crewai.git
+git clone https://github.com/auraz/autodoceval-crewai.git
 cd autodoceval-crewai
 
 # Create and activate virtual environment (requires Python 3.10+)
