@@ -36,5 +36,5 @@ jobs:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         CHROMA_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
-        uv run pytest evcrew/tests/ --cov=evcrew --cov-report=term-missing --cov-report=xml --cov-fail-under=80
+        uv run pytest evcrew/tests/ --cov=evcrew --cov-report=term-missing --cov-report=xml --cov-fail-under=95
     
