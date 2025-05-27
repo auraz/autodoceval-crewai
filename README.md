@@ -1,6 +1,6 @@
 # AutoDocEval with CrewAI
 
-[![CI](https://github.com/kry/autodoceval-crewai/actions/workflows/ci.yml/badge.svg)](https://github.com/kry/autodoceval-crewai/actions/workflows/ci.yml)
+[![CI](https://github.com/auraz/autodoceval-crewai/actions/workflows/ci.yml/badge.svg)](https://github.com/auraz/autodoceval-crewai/actions/workflows/ci.yml)
 [![PyPI version](https://badge.fury.io/py/autodoceval-crewai.svg)](https://badge.fury.io/py/autodoceval-crewai)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/)
 
@@ -17,7 +17,7 @@ Document evaluation and improvement using CrewAI agents with persistent memory c
 pip install autodoceval-crewai
 
 # Or install from source
-git clone https://github.com/kry/autodoceval-crewai.git
+git clone https://github.com/auraz/autodoceval-crewai.git
 cd autodoceval-crewai
 
 # Install using uv (recommended)

@@ -179,7 +179,7 @@ github-release version:
     # Create GitHub release
     gh release create v{{version}} \
         --title "v{{version}}" \
-        --notes "$(printf "## What's Changed in v{{version}}\n\n$CHANGES\n\n## Installation\n\n    pip install autodoceval-crewai=={{version}}\n\n## Full Changelog\n\n${PREV_TAG:+https://github.com/kry/autodoceval-crewai/compare/${PREV_TAG}...v{{version}}}${PREV_TAG:-https://github.com/kry/autodoceval-crewai/commits/v{{version}}}")" \
+        --notes "$(printf "## What's Changed in v{{version}}\n\n$CHANGES\n\n## Installation\n\n    pip install autodoceval-crewai=={{version}}\n\n## Full Changelog\n\n${PREV_TAG:+https://github.com/auraz/autodoceval-crewai/compare/${PREV_TAG}...v{{version}}}${PREV_TAG:-https://github.com/auraz/autodoceval-crewai/commits/v{{version}}}")" \
         --verify-tag
     
     echo "✅ GitHub release v{{version}} created!"
