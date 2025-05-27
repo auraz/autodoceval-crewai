@@ -124,3 +124,23 @@ def test_document_iterator_no_improvement():
     assert len(iterations) == 3  # Initial eval + 2 improvements
     assert iterator.final_score == 60
     assert iterator.total_improvement == 0
+
+
+def test_document_iterator_single_iteration():
+    """Test total_improvement property with single iteration."""
+    evaluator = MockEvaluator([95])  # High initial score
+    improver = MockImprover()
+    
+    iterator = DocumentIterator(
+        evaluator, improver, "test_doc", "test.md",
+        "Great content", target_score=90, max_iterations=5
+    )
+    
+    # Get first iteration (will stop due to high score)
+    with contextlib.suppress(StopIteration):
+        first_iter = next(iterator)
+        assert first_iter.score == 95
+    
+    # Test total_improvement with only one iteration
+    assert len(iterator._iterations) == 1
+    assert iterator.total_improvement == 0.0  # Should return 0 when only 1 iteration

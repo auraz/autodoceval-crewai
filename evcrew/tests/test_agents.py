@@ -76,3 +76,38 @@ def test_improver_base_methods():
     
     # Test API key is set
     assert improver.api_key is not None
+
+
+def test_evaluator_execute_with_mock():
+    """Test evaluator execute method with proper mocking."""
+    from unittest.mock import Mock, patch
+    from evcrew.agents.base import EvaluationResult
+    
+    evaluator = DocumentEvaluator()
+    
+    # Mock the parent execute method
+    with patch.object(evaluator.__class__.__bases__[0], 'execute') as mock_execute:
+        mock_execute.return_value = EvaluationResult(score=75.5, feedback="  Good docs  ")
+        
+        score, feedback = evaluator.execute("Test content")
+        
+        assert score == 75.5
+        assert feedback == "Good docs"  # Should be stripped
+        mock_execute.assert_called_once()
+
+
+def test_improver_execute_with_mock():
+    """Test improver execute method with proper mocking."""
+    from unittest.mock import Mock, patch
+    from evcrew.agents.base import ImprovementResult
+    
+    improver = DocumentImprover()
+    
+    # Mock the parent execute method
+    with patch.object(improver.__class__.__bases__[0], 'execute') as mock_execute:
+        mock_execute.return_value = ImprovementResult(improved_content="# Better Doc")
+        
+        result = improver.execute("Test content", "Add examples")
+        
+        assert result == "# Better Doc"
+        mock_execute.assert_called_once()

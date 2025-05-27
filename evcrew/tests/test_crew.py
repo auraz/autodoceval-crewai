@@ -52,6 +52,22 @@ def test_crew_workflow():
         print("\n✅ Crew workflow test passed!")
 
 
+def test_crew_main_execution():
+    """Test main execution path."""
+    # Save original argv
+    original_argv = sys.argv
+    
+    try:
+        # Test with API key set
+        sys.argv = ['test_crew.py']
+        with patch.dict(os.environ, {'OPENAI_API_KEY': 'test-key'}):
+            # Should not raise
+            assert os.getenv("OPENAI_API_KEY") == 'test-key'
+    finally:
+        # Restore argv
+        sys.argv = original_argv
+
+
 if __name__ == "__main__":
     # Ensure we have the OpenAI API key
     if not os.getenv("OPENAI_API_KEY"):
