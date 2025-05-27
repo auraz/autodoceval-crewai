@@ -151,3 +151,90 @@ release version:
     git tag -a v{{version}} -m "Release v{{version}}"
     git push origin v{{version}}
     @echo "🏷️  Tagged release v{{version}}"
+
+# Create GitHub release with notes
+github-release version:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    
+    # Check if tag exists
+    if ! git rev-parse v{{version}} >/dev/null 2>&1; then
+        echo "❌ Tag v{{version}} doesn't exist. Run 'just release {{version}}' first."
+        exit 1
+    fi
+    
+    # Generate release notes
+    echo "📝 Generating release notes for v{{version}}..."
+    
+    # Get previous tag
+    PREV_TAG=$(git describe --tags --abbrev=0 v{{version}}^ 2>/dev/null || echo "")
+    
+    # Generate changelog
+    if [ -n "$PREV_TAG" ]; then
+        CHANGES=$(git log --pretty=format:"- %s" $PREV_TAG..v{{version}} | grep -v "Merge" || true)
+    else
+        CHANGES=$(git log --pretty=format:"- %s" v{{version}} | grep -v "Merge" || true)
+    fi
+    
+    # Create release notes
+    NOTES="## What's Changed in v{{version}}
+
+$CHANGES
+
+## Installation
+
+\`\`\`bash
+pip install autodoceval-crewai=={{version}}
+\`\`\`
+
+## Full Changelog
+
+"
+    if [ -n "$PREV_TAG" ]; then
+        NOTES="${NOTES}https://github.com/kry/autodoceval-crewai/compare/${PREV_TAG}...v{{version}}"
+    else
+        NOTES="${NOTES}https://github.com/kry/autodoceval-crewai/commits/v{{version}}"
+    fi
+    
+    # Create GitHub release
+    gh release create v{{version}} \
+        --title "v{{version}}" \
+        --notes "$NOTES" \
+        --verify-tag
+    
+    @echo "✅ GitHub release v{{version}} created!"
+
+# Full release workflow: bump version, build, tag, create release, and publish
+full-release version:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    
+    echo "🚀 Starting full release process for v{{version}}..."
+    
+    # Update version in pyproject.toml
+    sed -i '' 's/version = ".*"/version = "{{version}}"/' pyproject.toml
+    
+    # Commit version bump
+    git add pyproject.toml
+    git commit -m "chore: bump version to {{version}}" || true
+    
+    # Build package
+    echo "📦 Building package..."
+    rm -rf dist/*
+    uv build
+    
+    # Create and push tag
+    echo "🏷️  Creating tag..."
+    git tag -a v{{version}} -m "Release v{{version}}"
+    git push origin main
+    git push origin v{{version}}
+    
+    # Create GitHub release
+    echo "📝 Creating GitHub release..."
+    just github-release {{version}}
+    
+    # Publish to PyPI
+    echo "📤 Publishing to PyPI..."
+    UV_PUBLISH_USERNAME=__token__ UV_PUBLISH_PASSWORD=$(cat ~/.pypirc | grep password | cut -d' ' -f3) uv publish
+    
+    echo "✨ Release v{{version}} completed successfully!"
