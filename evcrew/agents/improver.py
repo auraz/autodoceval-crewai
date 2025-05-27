@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -56,7 +56,7 @@ class DocumentImprover(BaseAgent):
         data = Box({
             "document": doc_name,
             "input_path": str(input_path) if input_path else None,
-            "timestamp": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "method": "evaluate_and_improve",
             "original": {
                 "content": original_content,

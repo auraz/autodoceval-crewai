@@ -3,7 +3,7 @@
 import json
 from collections.abc import Iterator
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional
 
@@ -24,7 +24,7 @@ class IterationData:
     feedback: str
     word_count: int
     improvement_delta: Optional[float] = None
-    timestamp: str = field(default_factory=lambda: datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"))
+    timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"))
 
 
 @dataclass
@@ -44,7 +44,7 @@ class DocumentIterator:
     _current_feedback: str = field(default="", init=False)
     _iteration_count: int = field(default=0, init=False)
     _iterations: list[IterationData] = field(default_factory=list, init=False)
-    _start_time: datetime = field(default_factory=datetime.utcnow, init=False)
+    _start_time: datetime = field(default_factory=lambda: datetime.now(timezone.utc), init=False)
     _launch_id: str = field(init=False)
     
     def __post_init__(self):
@@ -150,7 +150,7 @@ class DocumentIterator:
             "document": self.doc_name,
             "input_path": self.doc_path,
             "timestamp": self._start_time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "duration_seconds": (datetime.utcnow() - self._start_time).total_seconds(),
+            "duration_seconds": (datetime.now(timezone.utc) - self._start_time).total_seconds(),
             "status": status,
             "parameters": {
                 "target_score": self.target_score,

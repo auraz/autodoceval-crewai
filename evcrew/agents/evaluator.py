@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -57,7 +57,7 @@ class DocumentEvaluator(BaseAgent):
         data = Box({
             "document": doc_name,
             "input_path": str(input_path) if input_path else None,
-            "timestamp": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "evaluation": {
                 "score": score,
                 "feedback": feedback,
