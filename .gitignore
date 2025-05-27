@@ -108,7 +108,6 @@ celerybeat.pid
 .env
 .venv
 env/
-venv/
 ENV/
 env.bak/
 venv.bak/
@@ -149,6 +148,7 @@ cython_debug/
 # Claude Code
 .aider*
 .claude/
+config/
 
 # Snakemake
 .snakemake/
@@ -160,5 +160,4 @@ memory/
 *.swo
 *~
 .ruff_cache/
-venv/
 docs/memory/

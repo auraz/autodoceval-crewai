@@ -1,5 +1,10 @@
 # AutoDocEval with CrewAI
 
+[![CI](https://github.com/kry/autodoceval-crewai/actions/workflows/ci.yml/badge.svg)](https://github.com/kry/autodoceval-crewai/actions/workflows/ci.yml)
+[![Coverage](https://codecov.io/gh/kry/autodoceval-crewai/branch/main/graph/badge.svg)](https://codecov.io/gh/kry/autodoceval-crewai)
+[![PyPI version](https://badge.fury.io/py/autodoceval-crewai.svg)](https://badge.fury.io/py/autodoceval-crewai)
+[![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/)
+
 Document evaluation and improvement using CrewAI agents with persistent memory capabilities.
 
 ## What is CrewAI?
@@ -9,16 +14,18 @@ Document evaluation and improvement using CrewAI agents with persistent memory c
 ## Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/auraz/autodoceval-crewai.git
+# Install from PyPI
+pip install autodoceval-crewai
+
+# Or install from source
+git clone https://github.com/kry/autodoceval-crewai.git
 cd autodoceval-crewai
 
-# Create and activate virtual environment (requires Python 3.10+)
-python3.12 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install the package in development mode
+# Install using uv (recommended)
 uv pip install -e .
+
+# Or install using pip
+pip install -e .
 ```
 
 Set your OpenAI API key:
@@ -181,28 +188,62 @@ autodoceval-crewai/
 │   │       ├── evaluator.md     # Evaluation prompt
 │   │       ├── improver.md      # Improvement prompt
 │   │       └── improver_task.md # Improvement task prompt
-│   ├── tests/           # Unit tests
-│   │   ├── test_crew.py     # Crew tests
-│   │   └── test_evaluator.py # Evaluator tests
+│   ├── tests/           # Unit tests (95% coverage)
 │   ├── __init__.py      # Package exports
 │   ├── crew.py          # DocumentCrew workflow class
-│   ├── tracking.py      # Iteration tracking system
+│   ├── process.py       # Document iteration processor
 │   └── utils.py         # File operation utilities
 ├── docs/                # Document storage
 │   ├── input/           # Input documents
 │   └── output/          # Evaluation results
-├── config/              # Configuration files
-│   └── CLAUDE.md        # AI assistant instructions
+├── .github/workflows/   # CI/CD pipelines
+│   ├── ci.yml           # Test and coverage
+│   └── publish.yml      # PyPI publishing
 ├── Justfile             # Workflow definitions
 ├── pyproject.toml       # Package metadata
 └── README.md            # This file
 ```
 
+## Development
+
+### Running Tests
+
+```bash
+# Run tests with coverage
+just test
+
+# Or manually
+uv run pytest evcrew/tests/ --cov=evcrew --cov-report=term-missing
+```
+
+### Linting and Formatting
+
+```bash
+# Run linting
+just lint
+
+# Run auto-formatting
+just format
+```
+
+### Building and Publishing
+
+```bash
+# Build package
+just build
+
+# Create GitHub release
+just release v0.3.0
+
+# Publish to PyPI (requires API token)
+just publish
+```
+
 ## Requirements
 
-- Python 3.10+ (3.12 recommended)
+- Python 3.12 (latest version tested in CI)
 - OpenAI API key
-- Dependencies installed via `uv pip install -e .`
+- Dependencies managed via `uv` or `pip`
 
 ## License
 

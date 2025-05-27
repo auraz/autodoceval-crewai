@@ -22,7 +22,7 @@ def test_crew_workflow():
 
     # Run evaluate and improve workflow
     print("Running crew workflow on bad README...")
-    improved_content, score, feedback = crew.evaluate_and_improve(bad_readme)
+    improved_content, score, feedback = crew.evaluate_and_improve_one(bad_readme)
 
     print(f"\nOriginal score: {score:.1f}%")
     print(f"Feedback: {feedback}\n")

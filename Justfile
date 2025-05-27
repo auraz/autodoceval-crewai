@@ -139,11 +139,11 @@ build:
     @echo "📦 Package built successfully"
 
 publish-test:
-    uv publish --test
+    uv publish --publish-url https://test.pypi.org/legacy/
     @echo "🧪 Published to TestPyPI"
 
 publish:
-    uv publish
+    uv publish --config-file .pypirc
     @echo "🚀 Published to PyPI"
 
 # GitHub release
