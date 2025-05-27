@@ -4,6 +4,7 @@
 import os
 import sys
 from pathlib import Path
+from unittest.mock import Mock, patch
 
 # Add the project root to the Python path
 project_root = Path(__file__).parent.parent.parent
@@ -14,7 +15,6 @@ from evcrew import DocumentCrew  # noqa: E402
 
 def test_crew_workflow():
     """Test the evaluate_and_improve crew workflow."""
-    from unittest.mock import patch, Mock
     
     # Mock the crew creation to avoid API key issues
     with patch('evcrew.crew.Crew') as mock_crew_class:
