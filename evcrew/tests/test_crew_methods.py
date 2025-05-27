@@ -79,11 +79,9 @@ def test_improve_one(mock_execute):
     mock_execute.assert_called_once_with("# Test Doc", "Add examples")
 
 
-@mock_crew
-@patch('evcrew.crew.Crew.kickoff')
 @patch('evcrew.agents.evaluator.DocumentEvaluator.create_task')
 @patch('evcrew.agents.improver.DocumentImprover.create_task')
-def test_evaluate_and_improve_one(mock_improve_task, mock_eval_task, mock_kickoff):
+def test_evaluate_and_improve_one(mock_improve_task, mock_eval_task):
     """Test evaluate_and_improve_one method."""
     # Setup mocks
     eval_task = MockTask()
@@ -91,16 +89,21 @@ def test_evaluate_and_improve_one(mock_improve_task, mock_eval_task, mock_kickof
     mock_eval_task.return_value = eval_task
     mock_improve_task.return_value = improve_task
     
-    # Mock kickoff result
-    mock_result = Mock()
-    mock_result.tasks_output = [
-        Mock(pydantic=Mock(score=85, feedback="Good")),
-        Mock(pydantic=Mock(improved_content="# Better Doc"))
-    ]
-    mock_kickoff.return_value = mock_result
-    
-    crew = DocumentCrew()
-    improved, score, feedback = crew.evaluate_and_improve_one("# Test Doc", "test")
+    with patch('evcrew.crew.Crew') as mock_crew_class:
+        # Create a properly configured mock crew instance
+        mock_crew_instance = Mock()
+        mock_crew_class.return_value = mock_crew_instance
+        
+        # Mock kickoff result
+        mock_result = Mock()
+        mock_result.tasks_output = [
+            Mock(pydantic=Mock(score=85, feedback="Good")),
+            Mock(pydantic=Mock(improved_content="# Better Doc"))
+        ]
+        mock_crew_instance.kickoff.return_value = mock_result
+        
+        crew = DocumentCrew()
+        improved, score, feedback = crew.evaluate_and_improve_one("# Test Doc", "test")
     
     assert improved == "# Better Doc"
     assert score == 85
