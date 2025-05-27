@@ -1,6 +1,7 @@
 # AutoDocEval with CrewAI
 
 [![CI](https://github.com/kry/autodoceval-crewai/actions/workflows/ci.yml/badge.svg)](https://github.com/kry/autodoceval-crewai/actions/workflows/ci.yml)
+[![Coverage](https://codecov.io/gh/kry/autodoceval-crewai/branch/main/graph/badge.svg)](https://codecov.io/gh/kry/autodoceval-crewai)
 [![PyPI version](https://badge.fury.io/py/autodoceval-crewai.svg)](https://badge.fury.io/py/autodoceval-crewai)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/)
 
