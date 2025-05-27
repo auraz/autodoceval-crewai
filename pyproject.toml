@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "autodoceval-crewai"
-version = "0.4.0"
+version = "0.4.1"
 description = "Document evaluation and improvement using CrewAI agents"
 authors = [{ name = "Oleksandr Kryklia", email = "kryklia@gmail.com" }]
 readme = "README.md"
@@ -41,7 +41,7 @@ packages = ["evcrew"]
 
 [tool.ruff]
 line-length = 170
-target-version = "py39"
+target-version = "0.4.1"
 
 [tool.ruff.lint]
 select = [
