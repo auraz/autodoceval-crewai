@@ -7,6 +7,16 @@ from unittest.mock import Mock, patch
 from evcrew.crew import DocumentCrew
 
 
+def mock_crew(test_func):
+    """Decorator to mock CrewAI Crew class to avoid API key issues."""
+    def wrapper(*args, **kwargs):
+        with patch('evcrew.crew.Crew') as mock_crew_class:
+            mock_crew_instance = Mock()
+            mock_crew_class.return_value = mock_crew_instance
+            return test_func(*args, **kwargs)
+    return wrapper
+
+
 class MockAgent:
     """Mock agent for testing."""
     def __init__(self, name):
@@ -20,6 +30,7 @@ class MockTask:
         self.pydantic = None
 
 
+@mock_crew
 def test_document_crew_init():
     """Test DocumentCrew initialization."""
     crew = DocumentCrew(target_score=90, max_iterations=3)
@@ -30,6 +41,7 @@ def test_document_crew_init():
     assert crew.crew is not None
 
 
+@mock_crew
 def test_document_crew_with_extra_prompts():
     """Test DocumentCrew with extra prompts."""
     crew = DocumentCrew(
@@ -40,6 +52,7 @@ def test_document_crew_with_extra_prompts():
     assert crew.improver.extra_prompt == "Add examples"
 
 
+@mock_crew
 @patch('evcrew.agents.evaluator.DocumentEvaluator.execute')
 def test_evaluate_one(mock_execute):
     """Test evaluate_one method."""
@@ -53,6 +66,7 @@ def test_evaluate_one(mock_execute):
     mock_execute.assert_called_once_with("# Test Doc")
 
 
+@mock_crew
 @patch('evcrew.agents.improver.DocumentImprover.execute')
 def test_improve_one(mock_execute):
     """Test improve_one method."""
@@ -65,6 +79,7 @@ def test_improve_one(mock_execute):
     mock_execute.assert_called_once_with("# Test Doc", "Add examples")
 
 
+@mock_crew
 @patch('evcrew.crew.Crew.kickoff')
 @patch('evcrew.agents.evaluator.DocumentEvaluator.create_task')
 @patch('evcrew.agents.improver.DocumentImprover.create_task')
@@ -93,6 +108,7 @@ def test_evaluate_and_improve_one(mock_improve_task, mock_eval_task, mock_kickof
     assert improve_task.context == [eval_task]
 
 
+@mock_crew
 def test_auto_improve_one():
     """Test auto_improve_one method with mocked agents."""
     with tempfile.TemporaryDirectory() as temp_dir:
