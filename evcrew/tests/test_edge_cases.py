@@ -1,11 +1,12 @@
 """Test edge cases and error conditions."""
 
-import pytest
 import os
 from unittest.mock import patch
 
-from evcrew.agents.base import BaseAgent, EvaluationResult, ImprovementResult
+import pytest
+
 from evcrew import DocumentCrew
+from evcrew.agents.base import BaseAgent, EvaluationResult, ImprovementResult
 
 
 def test_base_agent_abstract():
@@ -40,8 +41,9 @@ def test_crew_without_api_key():
     
     try:
         # Should raise validation error due to missing API key for embedder
-        with pytest.raises(Exception):  # Crew requires API key for memory/embedder
-            crew = DocumentCrew()
+        from pydantic_core import ValidationError
+        with pytest.raises(ValidationError):  # Crew requires API key for memory/embedder
+            DocumentCrew()
     finally:
         # Restore API keys
         if original_key:
@@ -52,7 +54,6 @@ def test_crew_without_api_key():
 
 def test_crew_main_entry():
     """Test main entry point execution."""
-    from evcrew.tests.test_crew import test_crew_workflow
     
     # This should not raise any exceptions
     with patch('sys.argv', ['test_crew.py']):

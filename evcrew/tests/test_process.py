@@ -1,11 +1,10 @@
 """Test document processing iterator."""
 
-import pytest
-from pathlib import Path
+import contextlib
 import tempfile
+from pathlib import Path
 
 from evcrew.process import DocumentIterator
-from evcrew.agents import DocumentEvaluator, DocumentImprover
 
 
 class MockEvaluator:
@@ -74,10 +73,8 @@ def test_document_iterator_already_good():
         "Great content", target_score=85, max_iterations=5
     )
     
-    try:
+    with contextlib.suppress(StopIteration):
         list(iterator)
-    except StopIteration:
-        pass
     
     assert len(iterator._iterations) == 1
     assert iterator.final_score == 95

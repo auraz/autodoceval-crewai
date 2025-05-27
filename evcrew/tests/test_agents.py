@@ -1,7 +1,5 @@
 """Test agent classes."""
 
-import pytest
-from unittest.mock import Mock, patch
 
 from evcrew.agents import DocumentEvaluator, DocumentImprover
 

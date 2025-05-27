@@ -24,15 +24,11 @@ class DocumentImprover(BaseAgent):
 
     def create_task(self, content: str, **kwargs) -> Task:
         """Create improvement task for the given content."""
-        doc_name = kwargs.get("doc_name", "document")
         prompt_path = self.prompts_dir / "improver_task.md"
         base_description = prompt_path.read_text().format(content=content)
         
         # Append extra prompt if provided
-        if self.extra_prompt:
-            description = f"{base_description}\n\n{self.extra_prompt}"
-        else:
-            description = base_description
+        description = f"{base_description}\n\n{self.extra_prompt}" if self.extra_prompt else base_description
             
         return Task(
             description=description, expected_output="Improved version of the document", agent=self.agent, output_pydantic=ImprovementResult
@@ -45,10 +41,7 @@ class DocumentImprover(BaseAgent):
         base_description = prompt_template.format(content=content, feedback=feedback)
         
         # Append extra prompt if provided
-        if self.extra_prompt:
-            task_description = f"{base_description}\n\n{self.extra_prompt}"
-        else:
-            task_description = base_description
+        task_description = f"{base_description}\n\n{self.extra_prompt}" if self.extra_prompt else base_description
 
         result = super().execute(task_description, ImprovementResult)
         return result.improved_content

@@ -24,15 +24,11 @@ class DocumentEvaluator(BaseAgent):
 
     def create_task(self, content: str, **kwargs) -> Task:
         """Create evaluation task for the given content."""
-        doc_name = kwargs.get("doc_name", "document")
         prompt_path = self.prompts_dir / "evaluator.md"
         base_description = prompt_path.read_text().format(content=content)
         
         # Append extra prompt if provided
-        if self.extra_prompt:
-            description = f"{base_description}\n\n{self.extra_prompt}"
-        else:
-            description = base_description
+        description = f"{base_description}\n\n{self.extra_prompt}" if self.extra_prompt else base_description
             
         return Task(
             description=description,
@@ -48,10 +44,7 @@ class DocumentEvaluator(BaseAgent):
         base_description = prompt_template.format(content=content)
         
         # Append extra prompt if provided
-        if self.extra_prompt:
-            task_description = f"{base_description}\n\n{self.extra_prompt}"
-        else:
-            task_description = base_description
+        task_description = f"{base_description}\n\n{self.extra_prompt}" if self.extra_prompt else base_description
 
         result = super().execute(task_description, EvaluationResult)
         return result.score, result.feedback.strip()

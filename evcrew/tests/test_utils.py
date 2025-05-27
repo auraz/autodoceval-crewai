@@ -1,11 +1,12 @@
 """Test utility functions."""
 
-import pytest
-from pathlib import Path
-import tempfile
 import os
+import tempfile
+from pathlib import Path
 
-from evcrew.utils import read_file, write_file, process_file
+import pytest
+
+from evcrew.utils import process_file, read_file, write_file
 
 
 def test_read_file():

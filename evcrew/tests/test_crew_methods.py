@@ -1,9 +1,8 @@
 """Test DocumentCrew methods."""
 
-import pytest
-from unittest.mock import Mock, patch
-from pathlib import Path
 import tempfile
+from pathlib import Path
+from unittest.mock import Mock, patch
 
 from evcrew.crew import DocumentCrew
 
@@ -100,8 +99,8 @@ def test_auto_improve_one():
         crew = DocumentCrew()
         
         # Mock the evaluator and improver execute methods
-        with patch.object(crew.evaluator, 'execute', side_effect=[(60, "Initial feedback"), (85, "Good!")]):
-            with patch.object(crew.improver, 'execute', return_value="# Improved Doc"):
+        with patch.object(crew.evaluator, 'execute', side_effect=[(60, "Initial feedback"), (85, "Good!")]), \
+             patch.object(crew.improver, 'execute', return_value="# Improved Doc"):
                 result = crew.auto_improve_one("# Test Doc", temp_dir, "test", "test.md")
                 
                 # Check that iterator was returned
