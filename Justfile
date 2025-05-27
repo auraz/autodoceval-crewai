@@ -176,35 +176,13 @@ github-release version:
         CHANGES=$(git log --pretty=format:"- %s" v{{version}} | grep -v "Merge" || true)
     fi
     
-    # Create release notes
-    NOTES=$(cat <<'RELEASE_NOTES'
-## What's Changed in v{{version}}
-
-CHANGES_PLACEHOLDER
-
-## Installation
-
-    pip install autodoceval-crewai=={{version}}
-
-## Full Changelog
-
-RELEASE_NOTES
-)
-    # Replace placeholders
-    NOTES=$(echo "$NOTES" | sed "s/CHANGES_PLACEHOLDER/$CHANGES/")
-    if [ -n "$PREV_TAG" ]; then
-        NOTES="${NOTES}https://github.com/kry/autodoceval-crewai/compare/${PREV_TAG}...v{{version}}"
-    else
-        NOTES="${NOTES}https://github.com/kry/autodoceval-crewai/commits/v{{version}}"
-    fi
-    
     # Create GitHub release
     gh release create v{{version}} \
         --title "v{{version}}" \
-        --notes "$NOTES" \
+        --notes "$(printf "## What's Changed in v{{version}}\n\n$CHANGES\n\n## Installation\n\n    pip install autodoceval-crewai=={{version}}\n\n## Full Changelog\n\n${PREV_TAG:+https://github.com/kry/autodoceval-crewai/compare/${PREV_TAG}...v{{version}}}${PREV_TAG:-https://github.com/kry/autodoceval-crewai/commits/v{{version}}}")" \
         --verify-tag
     
-    @echo "✅ GitHub release v{{version}} created!"
+    echo "✅ GitHub release v{{version}} created!"
 
 # Full release workflow: bump version, build, tag, create release, and publish
 full-release version:
