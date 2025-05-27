@@ -1,7 +1,6 @@
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Optional
 
 from box import Box
 from crewai import Task
@@ -49,7 +48,7 @@ class DocumentEvaluator(BaseAgent):
         result = super().execute(task_description, EvaluationResult)
         return result.score, result.feedback.strip()
 
-    def save(self, score: float, feedback: str, content: str, output_dir: str | Path, doc_name: str, input_path: Optional[str] = None) -> None:
+    def save(self, score: float, feedback: str, content: str, output_dir: str | Path, doc_name: str, input_path: str | None = None) -> None:
         """Save evaluation results in a comprehensive JSON file."""
         output_dir = Path(output_dir)
         
@@ -57,7 +56,7 @@ class DocumentEvaluator(BaseAgent):
         data = Box({
             "document": doc_name,
             "input_path": str(input_path) if input_path else None,
-            "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "timestamp": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "evaluation": {
                 "score": score,
                 "feedback": feedback,

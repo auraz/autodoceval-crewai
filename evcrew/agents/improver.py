@@ -1,7 +1,6 @@
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Optional
 
 from box import Box
 from crewai import Task
@@ -47,7 +46,7 @@ class DocumentImprover(BaseAgent):
         return result.improved_content
 
     def save(self, original_content: str, improved_content: str, score: float, feedback: str, 
-             output_dir: str | Path, doc_name: str, input_path: Optional[str] = None) -> None:
+             output_dir: str | Path, doc_name: str, input_path: str | None = None) -> None:
         """Save improvement results in a comprehensive JSON file and markdown file."""
         output_dir = Path(output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -56,7 +55,7 @@ class DocumentImprover(BaseAgent):
         data = Box({
             "document": doc_name,
             "input_path": str(input_path) if input_path else None,
-            "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "timestamp": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "method": "evaluate_and_improve",
             "original": {
                 "content": original_content,

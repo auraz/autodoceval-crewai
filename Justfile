@@ -191,8 +191,8 @@ full-release version:
     
     echo "🚀 Starting full release process for v{{version}}..."
     
-    # Update version in pyproject.toml
-    sed -i '' 's/version = ".*"/version = "{{version}}"/' pyproject.toml
+    # Update version in pyproject.toml (only in [project] section)
+    sed -i '' '/^\[project\]/,/^\[/s/^version = ".*"/version = "{{version}}"/' pyproject.toml
     
     # Commit version bump
     git add pyproject.toml
