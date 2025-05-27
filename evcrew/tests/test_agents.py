@@ -80,7 +80,8 @@ def test_improver_base_methods():
 
 def test_evaluator_execute_with_mock():
     """Test evaluator execute method with proper mocking."""
-    from unittest.mock import Mock, patch
+    from unittest.mock import patch
+
     from evcrew.agents.base import EvaluationResult
     
     evaluator = DocumentEvaluator()
@@ -98,7 +99,8 @@ def test_evaluator_execute_with_mock():
 
 def test_improver_execute_with_mock():
     """Test improver execute method with proper mocking."""
-    from unittest.mock import Mock, patch
+    from unittest.mock import patch
+
     from evcrew.agents.base import ImprovementResult
     
     improver = DocumentImprover()
