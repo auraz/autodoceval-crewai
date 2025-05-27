@@ -177,21 +177,21 @@ github-release version:
     fi
     
     # Create release notes
-    NOTES=$(cat <<EOF
+    NOTES=$(cat <<'RELEASE_NOTES'
 ## What's Changed in v{{version}}
 
-$CHANGES
+CHANGES_PLACEHOLDER
 
 ## Installation
 
-\`\`\`bash
-pip install autodoceval-crewai=={{version}}
-\`\`\`
+    pip install autodoceval-crewai=={{version}}
 
 ## Full Changelog
 
-EOF
+RELEASE_NOTES
 )
+    # Replace placeholders
+    NOTES=$(echo "$NOTES" | sed "s/CHANGES_PLACEHOLDER/$CHANGES/")
     if [ -n "$PREV_TAG" ]; then
         NOTES="${NOTES}https://github.com/kry/autodoceval-crewai/compare/${PREV_TAG}...v{{version}}"
     else
